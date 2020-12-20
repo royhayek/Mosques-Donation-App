@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/screens/otp/otp_screen.dart';
 
+import '../size_config.dart';
+
 class AccountText extends StatelessWidget {
   final String question, action;
 
@@ -18,7 +20,7 @@ class AccountText extends StatelessWidget {
         Text(
           question,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: SizeConfig.safeBlockHorizontal * 4,
           ),
         ),
         GestureDetector(
@@ -28,7 +30,7 @@ class AccountText extends StatelessWidget {
           child: Text(
             action,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: SizeConfig.safeBlockHorizontal * 4,
               color: Theme.of(context).primaryColor,
             ),
           ),

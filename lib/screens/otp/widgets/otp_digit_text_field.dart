@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../size_config.dart';
+
 class OTPDigitTextFieldBox extends StatelessWidget {
   final bool first;
   final bool last;
@@ -11,9 +13,10 @@ class OTPDigitTextFieldBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5),
+        padding: EdgeInsets.symmetric(
+            horizontal: SizeConfig.blockSizeHorizontal * 1.2),
         child: Container(
-          height: 55,
+          height: SizeConfig.blockSizeVertical * 7.2,
           child: Card(
             elevation: 4,
             margin: EdgeInsets.all(0),

@@ -3,6 +3,8 @@ import 'package:mosques_donation_app/providers/app_provider.dart';
 import 'package:mosques_donation_app/screens/otp/otp_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../size_config.dart';
+
 class SplashScreen extends StatefulWidget {
   static String routeName = "/splash_screen";
 
@@ -29,6 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Center(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/widgets/no_account_text.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
 import 'package:mosques_donation_app/screens/otp/widgets/otp_digit_text_field.dart';
@@ -11,7 +12,7 @@ class OTPScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
-
+    print(SizeConfig.safeBlockHorizontal);
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
@@ -36,7 +37,7 @@ class OTPScreen extends StatelessWidget {
                     Text(
                       "OTP Verification",
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: SizeConfig.safeBlockHorizontal * 7,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -45,7 +46,7 @@ class OTPScreen extends StatelessWidget {
                       "Please enter the OTP code sent to you by SMS",
                       style: TextStyle(
                         color: Colors.black54,
-                        fontSize: 17,
+                        fontSize: SizeConfig.safeBlockHorizontal * 4.3,
                         fontWeight: FontWeight.normal,
                       ),
                     ),
@@ -106,7 +107,8 @@ class OTPScreen extends StatelessWidget {
 
   buildOTPRow(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      padding:
+          EdgeInsets.symmetric(horizontal: SizeConfig.blockSizeHorizontal * 4),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
