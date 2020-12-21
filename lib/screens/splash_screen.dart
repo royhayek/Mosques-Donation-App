@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mosques_donation_app/main.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
-import 'package:mosques_donation_app/screens/otp/otp_screen.dart';
+import 'package:mosques_donation_app/screens/languages/languages_screen.dart';
 import 'package:provider/provider.dart';
-
 import '../size_config.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,20 +13,22 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  AppProvider appProvider;
+
   @override
   void initState() {
     super.initState();
-
-    getLanguage();
+    appProvider = Provider.of<AppProvider>(context, listen: false);
 
     Future.delayed(Duration(seconds: 5), () {
-      Navigator.pushReplacementNamed(context, OTPScreen.routeName);
+      _retrieveData();
+      Navigator.pushReplacementNamed(context, LanguagesScreen.routeName);
     });
   }
 
-  getLanguage() {
-    AppProvider appProvider = Provider.of<AppProvider>(context, listen: false);
+  _retrieveData() async {
     appProvider.setCurrentLanguage('English');
+    MyApp.setLocale(context, Locale('en', 'US'), 'English');
   }
 
   @override

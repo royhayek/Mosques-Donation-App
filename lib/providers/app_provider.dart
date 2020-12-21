@@ -5,10 +5,11 @@ class AppProvider with ChangeNotifier {
 
   void setCurrentLanguage(String language) {
     this.language = language;
-    notifyListeners();
   }
 
   String getLanguage() {
     return language;
   }
+
+  notifyListeners();
 }

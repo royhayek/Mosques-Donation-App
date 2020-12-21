@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/size_config.dart';
+import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/no_account_text.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
 import 'package:mosques_donation_app/screens/otp/widgets/otp_digit_text_field.dart';
@@ -12,50 +13,49 @@ class OTPScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
-    print(SizeConfig.safeBlockHorizontal);
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(
+          horizontal: SizeConfig.blockSizeHorizontal * 8,
+        ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Text(
-                      "OTP Verification",
-                      style: TextStyle(
-                        fontSize: SizeConfig.safeBlockHorizontal * 7,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Text(
+                    trans(context, 'otp_verification'),
+                    style: TextStyle(
+                      fontSize: SizeConfig.safeBlockHorizontal * 8,
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(height: 20),
-                    Text(
-                      "Please enter the OTP code sent to you by SMS",
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: SizeConfig.safeBlockHorizontal * 4.3,
-                        fontWeight: FontWeight.normal,
-                      ),
+                  ),
+                  SizedBox(height: SizeConfig.blockSizeVertical * 3),
+                  Text(
+                    trans(context, 'please_enter_the_otp_code'),
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: SizeConfig.safeBlockHorizontal * 4.5,
+                      fontWeight: FontWeight.normal,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              SizedBox(height: 45),
+              SizedBox(height: SizeConfig.blockSizeVertical * 9),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.symmetric(
+                  horizontal: SizeConfig.blockSizeHorizontal * 5,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -68,12 +68,12 @@ class OTPScreen extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           buildOTPRow(context),
-                          SizedBox(height: 50),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 8),
                           AccountText(
-                            question: "Didn't get a code? ",
-                            action: 'Send again',
+                            question: '${trans(context, 'didnt_get_a_code')} ',
+                            action: trans(context, 'send_again'),
                           ),
-                          SizedBox(height: 50),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 8),
                         ],
                       ),
                       Column(
@@ -81,11 +81,10 @@ class OTPScreen extends StatelessWidget {
                           Align(
                             alignment: Alignment.bottomCenter,
                             child: DefaultButton(
-                              text: "Verify",
+                              text: trans(context, 'verify'),
                               press: () {
                                 if (_formKey.currentState.validate()) {
                                   _formKey.currentState.save();
-                                  // if all are valid then go to success screen
                                   Navigator.pushReplacementNamed(
                                       context, TabsScreen.routeName);
                                 }

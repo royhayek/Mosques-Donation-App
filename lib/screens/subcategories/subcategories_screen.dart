@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mosques_donation_app/screens/subcategories/widgets/subcategory_list_item.dart';
+import 'package:mosques_donation_app/size_config.dart';
 
 class SubCategoriesScreen extends StatelessWidget {
   static String routeName = "/subcategories_screen";
 
   @override
   Widget build(BuildContext context) {
+    print(SizeConfig.blockSizeHorizontal * 1.5);
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -14,7 +16,7 @@ class SubCategoriesScreen extends StatelessWidget {
           Stack(
             children: [
               Container(
-                height: 250,
+                height: SizeConfig.blockSizeVertical * 35,
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 decoration: BoxDecoration(
                   color: Theme.of(context).scaffoldBackgroundColor,
@@ -23,8 +25,9 @@ class SubCategoriesScreen extends StatelessWidget {
                         color: Colors.white, blurRadius: 1, spreadRadius: 0.5)
                   ],
                   borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30)),
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
                 ),
                 child: Image.asset(
                   'assets/images/kuwait_mosque.jpg',
@@ -34,17 +37,23 @@ class SubCategoriesScreen extends StatelessWidget {
                 ),
               ),
               Container(
-                width: 40,
-                height: 40,
-                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 40),
+                width: SizeConfig.blockSizeHorizontal * 10.2,
+                height: SizeConfig.blockSizeVertical * 5.3,
+                margin: EdgeInsets.symmetric(
+                    horizontal: SizeConfig.blockSizeHorizontal * 3.8,
+                    vertical: SizeConfig.blockSizeVertical * 5.3),
                 child: IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: Padding(
-                    padding: EdgeInsets.only(left: 6),
-                    child: Icon(
-                      Icons.arrow_back_ios,
-                      size: 18,
-                      color: Theme.of(context).iconTheme.color,
+                  icon: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: SizeConfig.blockSizeHorizontal * 1.5,
+                      ),
+                      child: Icon(
+                        Icons.arrow_back_ios,
+                        size: 18,
+                        color: Theme.of(context).iconTheme.color,
+                      ),
                     ),
                   ),
                 ),

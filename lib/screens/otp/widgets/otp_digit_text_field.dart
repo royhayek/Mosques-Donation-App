@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../size_config.dart';
 
@@ -39,6 +40,10 @@ class OTPDigitTextFieldBox extends StatelessWidget {
                 textAlign: TextAlign.center,
                 // style: MyStyles.inputTextStyle,
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(1),
+                ],
                 maxLength: 1,
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.only(top: 5),
