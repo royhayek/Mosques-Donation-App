@@ -32,6 +32,13 @@ dependencies:
   easy_localization: ^2.3.2
   fluentui_system_icons: ^1.1.83
   google_fonts: ^1.1.1
+  bubble_tab_indicator: ^0.1.4
+  group_radio_button: ^1.0.1
+  flutter_google_places: ^0.2.6
+  google_place: ^0.3.3
+  carousel_slider: ^2.3.1
+  url_launcher: ^5.7.10
+  google_maps_place_picker: ^1.0.1
 
 dev_dependencies:
   flutter_test:

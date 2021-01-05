@@ -1,9 +1,9 @@
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 
-class CartListItem extends StatelessWidget {
+import '../../../size_config.dart';
+
+class DonationListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,19 +43,34 @@ class CartListItem extends StatelessWidget {
                           color: Colors.black87,
                         ),
                       ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      Text('3 ${trans(context, 'kd')}'),
+                      SizedBox(height: SizeConfig.blockSizeVertical * 1.1),
+                      Text(
+                        '3 ${trans(context, 'kd')}',
+                        style: TextStyle(
+                          fontSize: SizeConfig.blockSizeHorizontal * 3.8,
+                        ),
+                      ),
+                      SizedBox(height: SizeConfig.blockSizeVertical * 1.1),
+                      Container(
+                        padding: EdgeInsets.all(
+                          SizeConfig.blockSizeHorizontal * 0.9,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            SizeConfig.blockSizeHorizontal * 4,
+                          ),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        child: Text(
+                          '10/12/2020',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
                     ],
                   ),
-                ),
-                SizedBox(
-                  width: SizeConfig.blockSizeHorizontal * 10,
-                  height: SizeConfig.blockSizeHorizontal * 10,
-                  child: IconButton(
-                      icon: Icon(FluentIcons.delete_28_regular),
-                      splashRadius: SizeConfig.blockSizeHorizontal * 5,
-                      iconSize: SizeConfig.blockSizeHorizontal * 6,
-                      onPressed: () => null),
                 ),
               ],
             ),

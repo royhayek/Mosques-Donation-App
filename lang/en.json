@@ -9,6 +9,17 @@
   "didnt_get_a_code": "Didn't get a code?",
   "send_again": "Send Again",
   "verify": "Verify",
+  "donation_cart": "Donation Cart",
+  "donations_list": "Donations List",
+  "donation_history": "Donation History",
+  "suggest_or_complain": "Suggest or Complain",
+  "pending": "Pending",
+  "complete": "Complete",
+  "complaint": "Complaint",
+  "suggestion": "Suggestion",
+  "write_your_complaint": "Write your complaint",
+  "write_your_suggestion": "Write your suggestion",
+  "submit": "Submit",
   "get_started": "Get Started",
   "discover_books_you_need": "Discover books you need",
   "find_millions_of_books": "Find millions of books from many universities and colleges",
@@ -138,5 +149,8 @@
   "processing": "Processing",
   "completed": "Completed",
   "book": "book",
-  "you_need_to_agree_to_terms_of_use": "You need to agree to terms of use"
+  "you_need_to_agree_to_terms_of_use": "You need to agree to terms of use",
+  "please_describe_your_donation": "Please describe your donation",
+  "please_enter_a_mobile_number": "Please enter a mobile number to receive an OTP code",
+  "continue": "Continue"
 }

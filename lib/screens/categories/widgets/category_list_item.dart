@@ -1,39 +1,75 @@
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:mosques_donation_app/models/category.dart';
+import 'package:mosques_donation_app/models/subcategory.dart';
+import 'package:mosques_donation_app/screens/checkout/checkout_screen.dart';
+import 'package:mosques_donation_app/screens/products_list/products_list_screen.dart';
 import 'package:mosques_donation_app/screens/subcategories/subcategories_screen.dart';
+import 'package:mosques_donation_app/services/http_service.dart';
+import 'package:mosques_donation_app/size_config.dart';
 
 class CategoryListItem extends StatelessWidget {
-  const CategoryListItem({Key key}) : super(key: key);
+  final Category category;
+  final Subcategory subcategory;
+
+  const CategoryListItem({Key key, this.category, this.subcategory})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, SubCategoriesScreen.routeName),
+      onTap: () => category != null
+          ? Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SubCategoriesScreen(category: category),
+              ),
+            )
+          : subcategory.showProductsList == 1
+              ? Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProductsListScreen(
+                      subcategory: subcategory,
+                    ),
+                  ),
+                )
+              : Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CheckoutScreen(subcategory: subcategory),
+                  ),
+                ),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-        padding: EdgeInsets.all(15),
+        // margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           color: Colors.grey.withOpacity(0.12),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Category Name',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 17,
-                      color: Colors.black87),
-                ),
-                SizedBox(height: 12),
-                Text('Description'),
-              ],
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                category != null
+                    ? '${HttpService.CATEGORY_IMAGES_PATH}${category.image}'
+                    : '${HttpService.SUBCATEGORY_IMAGES_PATH}${subcategory.image}',
+                fit: BoxFit.fill,
+                width: double.infinity,
+                height: SizeConfig.blockSizeHorizontal * 32,
+              ),
             ),
-            Spacer(),
-            Icon(FluentIcons.ios_chevron_right_20_regular)
+            Text(
+              category != null ? category.name : subcategory.name,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: Colors.black87),
+            ),
           ],
         ),
       ),
