@@ -11,7 +11,7 @@ class AppTheme {
     accentColor: Colors.grey,
     appBarTheme: lightAppBarTheme(),
     textTheme: lightTextTheme(),
-    cardColor: Colors.white,
+    // cardColor: Colors.white,
     hintColor: Colors.grey,
     iconTheme: IconThemeData(color: Colors.black),
     cardTheme: CardTheme(shadowColor: Colors.black.withOpacity(0.6)),
@@ -61,7 +61,7 @@ TextTheme lightTextTheme() {
       fontSize: 15,
       color: Colors.black.withOpacity(0.7),
     ),
-    headline6: TextStyle(color: Colors.white),
+    headline6: TextStyle(color: Colors.black),
   );
 }
 

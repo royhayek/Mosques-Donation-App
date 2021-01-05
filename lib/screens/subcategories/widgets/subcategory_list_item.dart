@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mosques_donation_app/size_config.dart';
+import 'package:mosques_donation_app/utils/utils.dart';
 
 class SubCategoryListItem extends StatelessWidget {
   const SubCategoryListItem({Key key}) : super(key: key);
@@ -9,13 +11,13 @@ class SubCategoryListItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.asset(
               'assets/images/water_pack.jpg',
               width: double.infinity,
-              height: 125,
+              height: SizeConfig.blockSizeVertical * 16,
               fit: BoxFit.fill,
             ),
             Text(
@@ -30,7 +32,7 @@ class SubCategoryListItem extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '3 KD',
+                  '3 ${trans(context, 'kd')}',
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,
                     fontSize: 15,

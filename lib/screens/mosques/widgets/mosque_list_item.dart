@@ -1,6 +1,6 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:mosques_donation_app/screens/subcategories/subcategories_screen.dart';
+import 'package:mosques_donation_app/screens/products_list/products_list_screen.dart';
 
 class MosqueListItem extends StatelessWidget {
   const MosqueListItem({Key key}) : super(key: key);
@@ -8,7 +8,7 @@ class MosqueListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, SubCategoriesScreen.routeName),
+      onTap: () => Navigator.pushNamed(context, ProductsListScreen.routeName),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 15, vertical: 7),
         padding: EdgeInsets.all(15),

@@ -3,7 +3,7 @@ import 'package:mosques_donation_app/main.dart';
 import 'package:mosques_donation_app/models/language.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
 import 'package:mosques_donation_app/screens/languages/widgets/languages_list_item.dart';
-import 'package:mosques_donation_app/screens/otp/otp_screen.dart';
+import 'package:mosques_donation_app/screens/signup/signup_screen.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
@@ -12,11 +12,17 @@ import 'package:provider/provider.dart';
 class LanguagesScreen extends StatefulWidget {
   static String routeName = "/languages_screen";
 
+  final bool nextEnabled;
+
+  const LanguagesScreen({Key key, this.nextEnabled}) : super(key: key);
+
   @override
   _LanguagesScreenState createState() => _LanguagesScreenState();
 }
 
 class _LanguagesScreenState extends State<LanguagesScreen> {
+  AppProvider appProvider;
+
   List<Language> _languages = [
     Language(name: 'English'),
     Language(name: 'Arabic'),
@@ -27,7 +33,10 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedLanguage = _languages[0];
+    appProvider = Provider.of<AppProvider>(context, listen: false);
+    _selectedLanguage = _languages.firstWhere(
+      (l) => l.name == appProvider.getLanguage(),
+    );
   }
 
   _changeLanguage(String language) {
@@ -51,7 +60,9 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+      ),
       body: Padding(
         padding: EdgeInsets.symmetric(
             horizontal: SizeConfig.blockSizeHorizontal * 8),
@@ -94,17 +105,19 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeConfig.blockSizeHorizontal * 6,
-              ),
-              child: DefaultButton(
-                press: () {
-                  Navigator.pushNamed(context, OTPScreen.routeName);
-                },
-                text: trans(context, 'next'),
-              ),
-            ),
+            widget.nextEnabled
+                ? Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: SizeConfig.blockSizeHorizontal * 6,
+                    ),
+                    child: DefaultButton(
+                      press: () {
+                        Navigator.pushNamed(context, SignUpScreen.routeName);
+                      },
+                      text: trans(context, 'next'),
+                    ),
+                  )
+                : Container(),
           ],
         ),
       ),

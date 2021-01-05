@@ -9,6 +9,17 @@
   "didnt_get_a_code": "ألم تحصل على رمز؟",
   "send_again": "أعد الإرسال",
   "verify": "تحقق",
+  "donation_cart": "سلة التبرع",
+  "donations_list": "قائمة التبرعات",
+  "donation_history": "تواريخ التبرع",
+  "suggest_or_complain": "اقترح أو أشتكي",
+  "pending": "قيد الانتظار",
+  "complete": "مكتمل",
+  "write_your_complaint": "اكتب شكواك",
+  "write_your_suggestion": "اكتب اقتراحك",
+  "submit": "إرسال",
+  "complaint": "شكوى",
+  "suggestion": "اقتراح",
   "get_started": "البدء",
   "discover_books_you_need": "اكتشف الكتب التي تحتاجها",
   "find_millions_of_books": "اعثر على ملايين الكتب من العديد من الجامعات والكليات",
@@ -137,5 +148,8 @@
   "waiting_confirmation":"لم يتم تأكيد الطلب",
   "processing":"الطلب قيد التشغيل",
   "completed":"تم اكتمال الطلب",
-  "you_need_to_agree_to_terms_of_use": "عليك الموافقة على الشروط والأحكام"
+  "you_need_to_agree_to_terms_of_use": "عليك الموافقة على الشروط والأحكام",
+  "please_describe_your_donation": "يرجى وصف تبرعك",
+  "please_enter_a_mobile_number": "الرجاء إدخال رقم الهاتف المحمول لتلقي رمز OTP",
+  "continue": "استمر"
 }
