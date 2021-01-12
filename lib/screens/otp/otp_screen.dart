@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
@@ -9,6 +10,10 @@ import '../tab_screens.dart';
 
 class OTPScreen extends StatelessWidget {
   static String routeName = "/otp_screen";
+
+  final User user;
+
+  const OTPScreen({Key key, this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

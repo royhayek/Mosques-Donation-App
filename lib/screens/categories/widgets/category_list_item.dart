@@ -65,6 +65,7 @@ class CategoryListItem extends StatelessWidget {
             Text(
               category != null ? category.name : subcategory.name,
               textAlign: TextAlign.center,
+              maxLines: 1,
               style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,

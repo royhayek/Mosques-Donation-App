@@ -8,6 +8,7 @@ import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LanguagesScreen extends StatefulWidget {
   static String routeName = "/languages_screen";
@@ -39,18 +40,22 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
     );
   }
 
-  _changeLanguage(String language) {
+  _changeLanguage(String language) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     Locale _temp;
     switch (language) {
       case 'English':
         _temp = Locale('en', 'US');
         MyApp.setLocale(context, _temp, 'English');
+        prefs.setString('language', 'English');
         Provider.of<AppProvider>(context, listen: false)
             .setCurrentLanguage(language);
         break;
       case 'Arabic':
         _temp = Locale('ar', 'AR');
         MyApp.setLocale(context, _temp, 'Arabic');
+        prefs.setString('language', 'Arabic');
         Provider.of<AppProvider>(context, listen: false)
             .setCurrentLanguage(language);
         break;
@@ -61,7 +66,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(
