@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "779564564560",
+    "project_id": "mosquesdonationapp-65a0c",
+    "storage_bucket": "mosquesdonationapp-65a0c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779564564560:android:8e91f15a2a85a0eae75155",
+        "android_client_info": {
+          "package_name": "com.example.mosquesdonationapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "779564564560-f4f8gd81jevcmtdmn9hsi52dihrjrfft.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpVyew5BxDAupLA4Ngmon-bMbbIJzy_hQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "779564564560-f4f8gd81jevcmtdmn9hsi52dihrjrfft.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

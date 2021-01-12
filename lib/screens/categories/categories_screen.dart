@@ -49,7 +49,8 @@ class CategoriesScreen extends StatelessWidget {
               options: CarouselOptions(
                 autoPlay: true,
                 enlargeCenterPage: true,
-                height: SizeConfig.blockSizeVertical * 22,
+                height: SizeConfig.blockSizeVertical * 18,
+                viewportFraction: 0.6,
               ),
               items: app.banners.map((i) {
                 return Builder(
@@ -58,7 +59,8 @@ class CategoriesScreen extends StatelessWidget {
                       onTap: () => _launchURL(i.url),
                       child: Container(
                         width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                        margin: EdgeInsets.symmetric(
+                            horizontal: SizeConfig.blockSizeHorizontal * 2),
                         clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10)),
@@ -102,6 +104,7 @@ class CategoriesScreen extends StatelessWidget {
   _buildProductsButton() {
     return SizedBox(
       width: double.infinity,
+      height: 90,
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: SizeConfig.blockSizeHorizontal * 4,
