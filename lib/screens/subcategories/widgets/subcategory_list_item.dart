@@ -2,14 +2,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/product.dart';
 import 'package:mosques_donation_app/models/product_attributes.dart';
+import 'package:mosques_donation_app/models/subcategory.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 
 class SubCategoryListItem extends StatefulWidget {
   final Product product;
+  final int categoryId;
+  final Subcategory subcategory;
 
-  const SubCategoryListItem({Key key, this.product}) : super(key: key);
+  const SubCategoryListItem(
+      {Key key, this.product, this.categoryId, this.subcategory})
+      : super(key: key);
 
   @override
   _SubCategoryListItemState createState() => _SubCategoryListItemState();
@@ -28,12 +33,14 @@ class _SubCategoryListItemState extends State<SubCategoryListItem> {
   }
 
   getProductVariables() async {
-    if (widget.product.productType == 'variable')
+    print(widget.product);
+    if (widget.product.productType == 'variable') {
       await HttpService.getProductAttributes(widget.product.id).then((a) {
         setState(() {
           attributes = a;
         });
       });
+    }
 
     setState(() {
       isRetrieving = false;
@@ -42,8 +49,8 @@ class _SubCategoryListItemState extends State<SubCategoryListItem> {
 
   addProductToCart(
       int productId, int attributeId, int quantity, num price) async {
-    await HttpService.addToCart(
-        _auth.currentUser.uid, productId, attributeId, quantity, price);
+    await HttpService.addToCart(_auth.currentUser.uid, widget.categoryId,
+        productId, attributeId, quantity, price);
   }
 
   ProductAttributes findProductVariation() {

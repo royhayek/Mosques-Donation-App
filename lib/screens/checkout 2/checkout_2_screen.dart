@@ -4,7 +4,6 @@ import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/models/organisation.dart';
-import 'package:mosques_donation_app/screens/checkout%202/checkout_2_screen.dart';
 import 'package:mosques_donation_app/screens/checkout/widgets/custom_text_field.dart';
 import 'package:mosques_donation_app/screens/products_list/products_list_screen.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
@@ -14,18 +13,18 @@ import 'package:mosques_donation_app/widgets/default_button.dart';
 
 const kGoogleApiKey = "AIzaSyBG3keQpOZF3ISJgrlVBencyf3ZcmeQpfw";
 
-class CheckoutScreen extends StatefulWidget {
-  static String routeName = "checkout_screen";
+class Checkout2Screen extends StatefulWidget {
+  static String routeName = "checkout_2_screen";
 
   final Category category;
 
-  const CheckoutScreen({Key key, this.category}) : super(key: key);
+  const Checkout2Screen({Key key, this.category}) : super(key: key);
 
   @override
-  _CheckoutScreenState createState() => _CheckoutScreenState();
+  _Checkout2ScreenState createState() => _Checkout2ScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class _Checkout2ScreenState extends State<Checkout2Screen> {
   static final kInitialPosition = LatLng(29.378586, 47.990341);
   List<Organisation> organisations = [];
   Widget _body;
@@ -41,7 +40,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         _body = Container();
         break;
       case 2:
-        _body = _getMosques();
+        _body = _buildAddressFields();
         break;
       case 3:
         _getOrganisations();
@@ -50,6 +49,45 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         _body = _buildCustomDonation();
         break;
     }
+  }
+
+  _buildAddressFields() {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: SizeConfig.blockSizeHorizontal * 8,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+          Text(
+            trans(context, 'donator_name'),
+            style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+          ),
+          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+          CustomTextField(maxLines: 1),
+          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+          Text(
+            trans(context, 'donor_'),
+            style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+          ),
+          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+          CustomTextField(maxLines: 1),
+          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+          Text(
+            trans(context, 'delivery_notes'),
+            style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+          ),
+          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+          CustomTextField(maxLines: 6),
+          SizedBox(height: SizeConfig.blockSizeVertical * 5),
+          DefaultButton(
+            press: () => null,
+            text: trans(context, 'submit'),
+          ),
+        ],
+      ),
+    );
   }
 
   _getOrganisations() async {
@@ -196,13 +234,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       enableMyLocationButton: true,
       automaticallyImplyAppBarLeading: false,
       selectedPlaceWidgetBuilder:
-          (_, selectedPlace, state, isSearchBarFocused) => selectedPlaceWidget(
-              selectedPlace, state, isSearchBarFocused, 'checkout'),
+          (_, selectedPlace, state, isSearchBarFocused) =>
+              selectedPlaceWidget(selectedPlace, state, isSearchBarFocused),
     );
   }
 
-  Widget selectedPlaceWidget(PickResult selectedPlace, SearchingState state,
-      bool isSearchBarFocused, String route) {
+  Widget selectedPlaceWidget(
+      PickResult selectedPlace, SearchingState state, bool isSearchBarFocused) {
     return isSearchBarFocused
         ? Container()
         : FloatingCard(
@@ -228,14 +266,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => route != 'checkout'
-                                    ? ProductsListScreen(
-                                        placeId: selectedPlace.placeId,
-                                        photos: selectedPlace.photos,
-                                      )
-                                    : Checkout2Screen(
-                                        category: widget.category,
-                                      ),
+                                builder: (context) => ProductsListScreen(
+                                  placeId: selectedPlace.placeId,
+                                  photos: selectedPlace.photos,
+                                ),
                               ),
                             );
                           },

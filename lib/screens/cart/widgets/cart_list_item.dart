@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/product.dart';
@@ -16,7 +15,6 @@ class CartListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth _auth = FirebaseAuth.instance;
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       padding: EdgeInsets.all(2),

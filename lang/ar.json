@@ -151,5 +151,7 @@
   "you_need_to_agree_to_terms_of_use": "عليك الموافقة على الشروط والأحكام",
   "please_describe_your_donation": "يرجى وصف تبرعك",
   "please_enter_a_mobile_number": "الرجاء إدخال رقم الهاتف المحمول لتلقي رمز OTP",
-  "continue": "استمر"
+  "continue": "استمر",
+  "donator_name": "اسم المتبرع",
+  "delivery_notes": "ملاحظات التوصيل"
 }

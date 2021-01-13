@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/screens/categories/widgets/category_list_item.dart';
+import 'package:mosques_donation_app/screens/products_list/products_list_screen.dart';
 
 import '../../size_config.dart';
 
@@ -14,11 +15,15 @@ class SubCategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(category.name),
-        centerTitle: true,
-      ),
-      body: _buildCategoryGridView(),
+      appBar: category.subcategories.isNotEmpty
+          ? AppBar(title: Text(category.name), centerTitle: true)
+          : PreferredSize(
+              preferredSize: Size.fromHeight(0),
+              child: Container(),
+            ),
+      body: category.subcategories.isNotEmpty
+          ? _buildCategoryGridView()
+          : ProductsListScreen(category: category),
     );
   }
 
@@ -38,6 +43,7 @@ class SubCategoriesScreen extends StatelessWidget {
       ),
       itemBuilder: (ctx, i) => CategoryListItem(
         subcategory: category.subcategories[i],
+        categoryId: category.id,
       ),
     );
   }

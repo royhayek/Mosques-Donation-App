@@ -9,7 +9,7 @@
   "didnt_get_a_code": "Didn't get a code?",
   "send_again": "Send Again",
   "verify": "Verify",
-  "donation_cart": "Donation Cart",
+  "donation_cart": "Donation Carts",
   "donations_list": "Donations List",
   "donation_history": "Donation History",
   "suggest_or_complain": "Suggest or Complain",
@@ -152,5 +152,7 @@
   "you_need_to_agree_to_terms_of_use": "You need to agree to terms of use",
   "please_describe_your_donation": "Please describe your donation",
   "please_enter_a_mobile_number": "Please enter a mobile number to receive an OTP code",
-  "continue": "Continue"
+  "continue": "Continue",
+  "donator_name": "Donator Name",
+  "delivery_notes": "Delivery Notes"
 }
