@@ -1,7 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
-import 'package:mosques_donation_app/screens/cart/cart_screen.dart';
+import 'package:mosques_donation_app/screens/cart_categories/cart_categories_screen.dart';
 import 'package:mosques_donation_app/screens/categories/widgets/category_list_item.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
@@ -18,7 +18,8 @@ class CategoriesScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(FluentIcons.cart_24_regular, size: 30),
-          onPressed: () => Navigator.pushNamed(context, CartScreen.routeName),
+          onPressed: () =>
+              Navigator.pushNamed(context, CartCategoriesScreen.routeName),
         ),
         actions: [
           IconButton(
@@ -150,6 +151,7 @@ class CategoriesScreen extends StatelessWidget {
         ),
         itemBuilder: (ctx, i) => CategoryListItem(
           category: app.categories[i],
+          categoryId: app.categories[i].id,
         ),
       ),
     );

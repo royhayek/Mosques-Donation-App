@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_webservice/src/places.dart' as p;
 import 'package:google_place/google_place.dart';
+import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/models/product.dart';
 import 'package:mosques_donation_app/models/subcategory.dart';
 import 'package:mosques_donation_app/screens/subcategories/widgets/subcategory_list_item.dart';
@@ -17,6 +18,8 @@ class ProductsListScreen extends StatefulWidget {
   final String placeId;
   final GooglePlace googlePlace;
   final Subcategory subcategory;
+  final Category category;
+  final int categoryId;
   final List<p.Photo> photos;
 
   const ProductsListScreen({
@@ -24,6 +27,8 @@ class ProductsListScreen extends StatefulWidget {
     this.placeId,
     this.googlePlace,
     this.subcategory,
+    this.category,
+    this.categoryId,
     this.photos,
   }) : super(key: key);
 
@@ -52,12 +57,29 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
 
       isLoading = false;
     } else {
-      getProductsBySubcategory();
+      if (widget.subcategory != null)
+        getProductBySubcategory();
+      else
+        getProductByCategory();
     }
   }
 
-  getProductsBySubcategory() async {
-    await HttpService.getProductBySubcategory(widget.subcategory.id).then((p) {
+  getProductByCategory() async {
+    print(widget.category.id);
+    await HttpService.getProductsByCategory(widget.category.id).then((p) {
+      setState(() {
+        products = p;
+        print(products);
+      });
+    });
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  getProductBySubcategory() async {
+    await HttpService.getProductsBySubcategory(widget.subcategory.id).then((p) {
       setState(() {
         products = p;
       });
@@ -105,28 +127,35 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                                 height: 250,
                                 fit: BoxFit.contain,
                               )
-                            : widget.photos != null
+                            : widget.category != null
                                 ? Image.network(
-                                    '${imagesString.first}',
+                                    '${HttpService.CATEGORY_IMAGES_PATH}${widget.category.image}',
                                     width: double.infinity,
                                     height: 250,
-                                    fit: BoxFit.cover,
+                                    fit: BoxFit.contain,
                                   )
-                                : Container(
-                                    width: double.infinity,
-                                    height: 250,
-                                    color: Colors.grey.shade200,
-                                    child: Center(
-                                      child: Text(
-                                        'No Image Available',
-                                        style: TextStyle(
-                                          fontSize:
-                                              SizeConfig.safeBlockHorizontal *
+                                : widget.photos != null
+                                    ? Image.network(
+                                        '${imagesString.first}',
+                                        width: double.infinity,
+                                        height: 250,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Container(
+                                        width: double.infinity,
+                                        height: 250,
+                                        color: Colors.grey.shade200,
+                                        child: Center(
+                                          child: Text(
+                                            'No Image Available',
+                                            style: TextStyle(
+                                              fontSize: SizeConfig
+                                                      .safeBlockHorizontal *
                                                   6,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  )
+                                      )
                     : Container(
                         child: Center(
                           child: CircularProgressIndicator(),
@@ -195,8 +224,13 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                           ),
                           shrinkWrap: true,
                           itemCount: products.length,
-                          itemBuilder: (context, index) =>
-                              SubCategoryListItem(product: products[index]),
+                          itemBuilder: (context, index) => SubCategoryListItem(
+                            product: products[index],
+                            categoryId: widget.category != null
+                                ? widget.category.id
+                                : widget.categoryId,
+                            subcategory: widget.subcategory,
+                          ),
                         )
                       : Center(child: Text('No Products Available'))
                   : Center(child: CircularProgressIndicator()),

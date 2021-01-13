@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:mosques_donation_app/screens/cart/cart_screen.dart';
+import 'package:mosques_donation_app/screens/cart_categories/cart_categories_screen.dart';
 import 'package:mosques_donation_app/screens/categories/categories_screen.dart';
+import 'package:mosques_donation_app/screens/checkout%202/checkout_2_screen.dart';
 import 'package:mosques_donation_app/screens/checkout/checkout_screen.dart';
 import 'package:mosques_donation_app/screens/donation_history/donation_history_screen.dart';
 import 'package:mosques_donation_app/screens/languages/languages_screen.dart';
@@ -24,8 +26,10 @@ final Map<String, WidgetBuilder> routes = {
   SubCategoriesScreen.routeName: (context) => SubCategoriesScreen(),
   ProductsListScreen.routeName: (context) => ProductsListScreen(),
   CartScreen.routeName: (context) => CartScreen(),
+  CartCategoriesScreen.routeName: (context) => CartCategoriesScreen(),
   DonationHistoryScreen.routeName: (context) => DonationHistoryScreen(),
   SuggestionReportScreen.routeName: (context) => SuggestionReportScreen(),
   CheckoutScreen.routeName: (context) => CheckoutScreen(),
+  Checkout2Screen.routeName: (context) => Checkout2Screen(),
   SignUpScreen.routeName: (context) => SignUpScreen(),
 };

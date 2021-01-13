@@ -29,7 +29,6 @@ class HttpService {
           .get(API + '/categories', headers: {"Accept": "application/json"});
       if (200 == response.statusCode) {
         final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
-        print(parsed);
         List<Category> categories =
             parsed.map<Category>((json) => Category.fromJson(json)).toList();
         return categories;
@@ -79,14 +78,13 @@ class HttpService {
     }
   }
 
-  static Future<List<Product>> getProductBySubcategory(
+  static Future<List<Product>> getProductsBySubcategory(
       int subcategoryId) async {
     try {
       final response = await http.get(API + '/products/$subcategoryId',
           headers: {"Accept": "application/json"});
       if (200 == response.statusCode) {
         final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
-        print(parsed);
         List<Product> products =
             parsed.map<Product>((json) => Product.fromJson(json)).toList();
         return products;
@@ -99,11 +97,31 @@ class HttpService {
     }
   }
 
-  static Future<String> addToCart(String userId, int productId, int attributeId,
-      int quantity, num price) async {
+  static Future<List<Product>> getProductsByCategory(int categoryId) async {
+    try {
+      final response = await http.get(
+          API + '/getProductsByCategory/$categoryId',
+          headers: {"Accept": "application/json"});
+      if (200 == response.statusCode) {
+        final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
+        List<Product> products =
+            parsed.map<Product>((json) => Product.fromJson(json)).toList();
+        return products;
+      } else {
+        return List<Product>();
+      }
+    } catch (e) {
+      print(e);
+      return List<Product>();
+    }
+  }
+
+  static Future<String> addToCart(String userId, int categoryId, int productId,
+      int attributeId, int quantity, num price) async {
     try {
       final response = await http.post(API + '/carts', body: {
         'userId': userId.toString(),
+        'categoryId': categoryId.toString(),
         'productId': productId.toString(),
         'attributeId': attributeId.toString(),
         'quantity': quantity.toString(),
@@ -111,8 +129,8 @@ class HttpService {
       }, headers: {
         "Accept": "application/json"
       });
-      print(response.body);
 
+      print(response.body);
       if (201 == response.statusCode) {
         final parsed = json.decode(response.body);
         Fluttertoast.showToast(msg: parsed['message']);
@@ -126,16 +144,15 @@ class HttpService {
     }
   }
 
-  static Future<Cart> getUserCart(String userId) async {
+  static Future<Cart> getUserCart(String userId, int categoryId) async {
     try {
-      final response = await http
-          .get(API + '/carts/$userId', headers: {"Accept": "application/json"});
-      print(response.body);
+      final response = await http.get(
+        API + '/getUserCart/$userId/$categoryId',
+        headers: {"Accept": "application/json"},
+      );
       if (200 == response.statusCode) {
         final parsed = json.decode(response.body);
-        print(parsed);
         Cart cart = Cart.fromJson(parsed);
-        print(cart);
         return cart;
       } else {
         return Cart();
@@ -199,13 +216,11 @@ class HttpService {
   static Future<ProductAttributes> getProductWithAttribute(
       int attributeId) async {
     try {
-      print('attributeId $attributeId');
       final response = await http.get(
           API + '/getProductWithAttribute/$attributeId',
           headers: {"Accept": "application/json"});
       if (200 == response.statusCode) {
         final parsed = json.decode(response.body);
-        print(parsed);
         ProductAttributes attributes = ProductAttributes.fromJson(parsed);
         return attributes;
       } else {
@@ -226,7 +241,6 @@ class HttpService {
       }, headers: {
         "Accept": "application/json"
       });
-      print(response.body);
 
       if (200 == response.statusCode) {
         final parsed = json.decode(response.body);

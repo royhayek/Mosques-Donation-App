@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_place/google_place.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_place_picker/google_maps_place_picker.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/models/organisation.dart';
-import 'package:mosques_donation_app/models/subcategory.dart';
+import 'package:mosques_donation_app/screens/checkout%202/checkout_2_screen.dart';
 import 'package:mosques_donation_app/screens/checkout/widgets/custom_text_field.dart';
+import 'package:mosques_donation_app/screens/products_list/products_list_screen.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
@@ -13,40 +17,34 @@ const kGoogleApiKey = "***REMOVED***";
 class CheckoutScreen extends StatefulWidget {
   static String routeName = "checkout_screen";
 
-  final Subcategory subcategory;
+  final Category category;
 
-  const CheckoutScreen({Key key, this.subcategory}) : super(key: key);
+  const CheckoutScreen({Key key, this.category}) : super(key: key);
 
   @override
   _CheckoutScreenState createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  GooglePlace googlePlace;
-  List<AutocompletePrediction> predictions = [];
+  static final kInitialPosition = LatLng(29.378586, 47.990341);
   List<Organisation> organisations = [];
   Widget _body;
   String selectedOrganisation;
 
   @override
-  void initState() {
-    googlePlace = GooglePlace(kGoogleApiKey);
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    switch (widget.subcategory.templateId) {
+    print(widget.category.templateId);
+    switch (widget.category.templateId) {
       case 1:
         _body = Container();
         break;
       case 2:
-        _getOrganisations();
+        _body = _getMosques();
         break;
       case 3:
-        _body = Container();
+        _getOrganisations();
         break;
       case 4:
         _body = _buildCustomDonation();
@@ -67,7 +65,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.subcategory.name),
+          title: Text(widget.category.name),
           centerTitle: true,
         ),
         body: _body);
@@ -108,12 +106,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     selectedOrganisation = value;
                   });
                   //autoCompleteSearch(value);
-                } else {
-                  if (predictions.length > 0 && mounted) {
-                    setState(() {
-                      predictions = [];
-                    });
-                  }
                 }
               },
             ),
@@ -190,25 +182,68 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  void mosquesAutoCompleteSearch(String value) async {
-    var result = await googlePlace.autocomplete.get(value);
-    // if (result != null && result.predictions != null && mounted) {
-    setState(() {
-      predictions = result.predictions;
-    });
-    print(predictions);
-    // }
-    setState(() {});
+  _getMosques() {
+    return PlacePicker(
+      apiKey: "***REMOVED***",
+      autocompleteComponents: [
+        Component('country', 'kw'),
+      ],
+      initialPosition: kInitialPosition,
+      selectInitialPosition: true,
+      useCurrentLocation: false,
+      myLocationButtonCooldown: 2,
+      usePlaceDetailSearch: true,
+      enableMyLocationButton: true,
+      automaticallyImplyAppBarLeading: false,
+      selectedPlaceWidgetBuilder:
+          (_, selectedPlace, state, isSearchBarFocused) => selectedPlaceWidget(
+              selectedPlace, state, isSearchBarFocused, 'checkout'),
+    );
   }
 
-  void autoCompleteSearch(String value) async {
-    var result = await googlePlace.autocomplete.get(value);
-    // if (result != null && result.predictions != null && mounted) {
-    setState(() {
-      predictions = result.predictions;
-    });
-    print(predictions);
-    // }
-    setState(() {});
+  Widget selectedPlaceWidget(PickResult selectedPlace, SearchingState state,
+      bool isSearchBarFocused, String route) {
+    return isSearchBarFocused
+        ? Container()
+        : FloatingCard(
+            bottomPosition: 40.0,
+            leftPosition: 10.0,
+            rightPosition: 10.0,
+            width: 500,
+            elevation: 5,
+            borderRadius: BorderRadius.circular(12.0),
+            child: Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 10),
+              child: selectedPlace != null
+                  ? Column(
+                      children: [
+                        Text(
+                          selectedPlace.formattedAddress,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        SizedBox(height: 10),
+                        RaisedButton(
+                          child: Text('Select'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => route != 'checkout'
+                                    ? ProductsListScreen(
+                                        placeId: selectedPlace.placeId,
+                                        photos: selectedPlace.photos,
+                                      )
+                                    : Checkout2Screen(
+                                        category: widget.category,
+                                      ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    )
+                  : Center(child: CircularProgressIndicator()),
+            ),
+          );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/cart.dart';
+import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/screens/cart/widgets/cart_list_item.dart';
+import 'package:mosques_donation_app/screens/checkout/checkout_screen.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
@@ -9,6 +11,10 @@ import 'package:mosques_donation_app/widgets/default_button.dart';
 
 class CartScreen extends StatefulWidget {
   static String routeName = "/cart_screen";
+
+  final Category category;
+
+  const CartScreen({Key key, this.category}) : super(key: key);
 
   @override
   _CartScreenState createState() => _CartScreenState();
@@ -26,14 +32,15 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   getUserCart() async {
-    await HttpService.getUserCart(_auth.currentUser.uid).then((c) {
+    HttpService.getUserCart(_auth.currentUser.uid, widget.category.id)
+        .then((c) {
       setState(() {
         cart = c;
       });
-    });
-
-    setState(() {
-      isRetrieving = false;
+    }).then((value) {
+      setState(() {
+        isRetrieving = false;
+      });
     });
   }
 
@@ -57,65 +64,76 @@ class _CartScreenState extends State<CartScreen> {
         title: Text(trans(context, 'donation_cart')),
         centerTitle: true,
       ),
-      body: !isRetrieving
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  cart.count == 1
-                      ? '${cart.count} product'
-                      : '${cart.count} products',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: SizeConfig.safeBlockHorizontal * 4,
-                  ),
-                ),
-                SizedBox(height: SizeConfig.blockSizeVertical * 1),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: cart.products.length,
-                  itemBuilder: (context, index) => CartListItem(
-                    product: cart.products[index],
-                    remove: removeProduct,
-                    update: updateProduct,
-                  ),
-                ),
-                Spacer(),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: SizeConfig.blockSizeHorizontal * 5,
-                    vertical: SizeConfig.blockSizeVertical * 5,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            trans(context, 'total_price'),
-                            style: TextStyle(
-                              fontSize: SizeConfig.safeBlockHorizontal * 5,
-                            ),
-                          ),
-                          Spacer(),
-                          Text(
-                            '${cart.total} ${trans(context, 'kd')}',
-                            style: TextStyle(
-                              fontSize: SizeConfig.safeBlockHorizontal * 5,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 2),
-                      DefaultButton(
-                        text: trans(context, 'checkout'),
-                        press: () => null,
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            )
-          : Center(child: CircularProgressIndicator()),
+      body: _buildCartList(),
     );
+  }
+
+  _buildCartList() {
+    return !isRetrieving
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                cart.count == 1
+                    ? '${cart.count} product'
+                    : '${cart.count} products',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: SizeConfig.safeBlockHorizontal * 4,
+                ),
+              ),
+              SizedBox(height: SizeConfig.blockSizeVertical * 1),
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: cart.products.length,
+                itemBuilder: (context, index) => CartListItem(
+                  product: cart.products[index],
+                  remove: removeProduct,
+                  update: updateProduct,
+                ),
+              ),
+              Spacer(),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: SizeConfig.blockSizeHorizontal * 5,
+                  vertical: SizeConfig.blockSizeVertical * 5,
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          trans(context, 'total_price'),
+                          style: TextStyle(
+                            fontSize: SizeConfig.safeBlockHorizontal * 5,
+                          ),
+                        ),
+                        Spacer(),
+                        Text(
+                          '${cart.total} ${trans(context, 'kd')}',
+                          style: TextStyle(
+                            fontSize: SizeConfig.safeBlockHorizontal * 5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: SizeConfig.blockSizeVertical * 2),
+                    DefaultButton(
+                      text: trans(context, 'checkout'),
+                      press: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) => CheckoutScreen(
+                            category: widget.category,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          )
+        : Center(child: CircularProgressIndicator());
   }
 }

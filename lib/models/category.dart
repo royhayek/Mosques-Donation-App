@@ -5,6 +5,7 @@ class Category {
   final String name;
   final String image;
   final int status;
+  final int templateId;
   final String createdAt;
   final String updatedAt;
   final List<Subcategory> subcategories;
@@ -14,6 +15,7 @@ class Category {
     this.name,
     this.image,
     this.status,
+    this.templateId,
     this.createdAt,
     this.updatedAt,
     this.subcategories,
@@ -25,6 +27,7 @@ class Category {
       name: json['name'],
       image: json['image'],
       status: json['status'],
+      templateId: json['templateId'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
       subcategories: json['subcategories'] != null
@@ -40,6 +43,7 @@ class Category {
       'name': name,
       'image': image,
       'status': status,
+      'templateId': templateId,
       'created_at': createdAt,
       'updated_at': updatedAt,
     };

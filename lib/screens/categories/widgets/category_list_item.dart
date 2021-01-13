@@ -10,8 +10,10 @@ import 'package:mosques_donation_app/size_config.dart';
 class CategoryListItem extends StatelessWidget {
   final Category category;
   final Subcategory subcategory;
+  final int categoryId;
 
-  const CategoryListItem({Key key, this.category, this.subcategory})
+  const CategoryListItem(
+      {Key key, this.category, this.subcategory, this.categoryId})
       : super(key: key);
 
   @override
@@ -30,14 +32,15 @@ class CategoryListItem extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => ProductsListScreen(
                       subcategory: subcategory,
+                      category: category,
+                      categoryId: category != null ? category.id : categoryId,
                     ),
                   ),
                 )
               : Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        CheckoutScreen(subcategory: subcategory),
+                    builder: (context) => CheckoutScreen(category: category),
                   ),
                 ),
       child: Container(
