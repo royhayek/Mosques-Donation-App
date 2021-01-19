@@ -12,9 +12,8 @@
   "donation_cart": "Donation Carts",
   "donations_list": "Donations List",
   "donation_history": "Donation History",
-  "suggest_or_complain": "Suggest or Complain",
+  "complain_or_suggest": "Complain / Suggest",
   "pending": "Pending",
-  "complete": "Complete",
   "complaint": "Complaint",
   "suggestion": "Suggestion",
   "write_your_complaint": "Write your complaint",
@@ -153,6 +152,6 @@
   "please_describe_your_donation": "Please describe your donation",
   "please_enter_a_mobile_number": "Please enter a mobile number to receive an OTP code",
   "continue": "Continue",
-  "donator_name": "Donator Name",
+  "donator_name": "Donor Name",
   "delivery_notes": "Delivery Notes"
 }

@@ -47,26 +47,26 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.googlePlace != null)
+    if (widget.googlePlace != null) {
       getDetails(widget.placeId);
-    else if (widget.photos != null) {
+      getProductByCategory(1);
+    } else if (widget.photos != null) {
       widget.photos.forEach((p) {
         imagesString.add(
             'https://maps.googleapis.com/maps/api/place/photo?photoreference=${p.photoReference}&sensor=false&maxheight=200&maxwidth=400&key=AIzaSyBG3keQpOZF3ISJgrlVBencyf3ZcmeQpfw');
       });
 
-      isLoading = false;
+      getProductByCategory(1);
     } else {
       if (widget.subcategory != null)
         getProductBySubcategory();
       else
-        getProductByCategory();
+        getProductByCategory(widget.category.id);
     }
   }
 
-  getProductByCategory() async {
-    print(widget.category.id);
-    await HttpService.getProductsByCategory(widget.category.id).then((p) {
+  getProductByCategory(int id) async {
+    await HttpService.getProductsByCategory(id).then((p) {
       setState(() {
         products = p;
         print(products);

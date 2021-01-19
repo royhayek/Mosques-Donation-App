@@ -116,7 +116,12 @@ class _TabsScreenState extends State<TabsScreen> {
             elevation: 5,
             borderRadius: BorderRadius.circular(12.0),
             child: Padding(
-              padding: EdgeInsets.only(top: 10, bottom: 10),
+              padding: EdgeInsets.only(
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10,
+              ),
               child: selectedPlace != null
                   ? Column(
                       children: [
@@ -134,6 +139,7 @@ class _TabsScreenState extends State<TabsScreen> {
                                 builder: (context) => ProductsListScreen(
                                   placeId: selectedPlace.placeId,
                                   photos: selectedPlace.photos,
+                                  categoryId: 1,
                                 ),
                               ),
                             );

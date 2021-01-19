@@ -3,6 +3,7 @@ class Subcategory {
   final String name;
   final String image;
   final int showProductsList;
+  final int showCustomField;
   final int status;
   final String createdAt;
   final String updatedAt;
@@ -13,6 +14,7 @@ class Subcategory {
     this.name,
     this.image,
     this.showProductsList,
+    this.showCustomField,
     this.status,
     this.createdAt,
     this.updatedAt,
@@ -25,6 +27,7 @@ class Subcategory {
       name: json['name'],
       image: json['image'],
       showProductsList: json['showProductsList'],
+      showCustomField: json['showCustomField'],
       status: json['status'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
@@ -38,6 +41,7 @@ class Subcategory {
       'name': name,
       'image': image,
       'showProductsList': showProductsList,
+      'showCustomField': showCustomField,
       'status': status,
       'created_at': createdAt,
       'updated_at': updatedAt,

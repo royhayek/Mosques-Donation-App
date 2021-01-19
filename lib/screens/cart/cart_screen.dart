@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/cart.dart';
 import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/screens/cart/widgets/cart_list_item.dart';
+import 'package:mosques_donation_app/screens/checkout%202/checkout_2_screen.dart';
 import 'package:mosques_donation_app/screens/checkout/checkout_screen.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
@@ -83,15 +84,27 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
               SizedBox(height: SizeConfig.blockSizeVertical * 1),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: cart.products.length,
-                itemBuilder: (context, index) => CartListItem(
-                  product: cart.products[index],
-                  remove: removeProduct,
-                  update: updateProduct,
-                ),
-              ),
+              cart.products.isNotEmpty
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: cart.products.length,
+                      itemBuilder: (context, index) => CartListItem(
+                        product: cart.products[index],
+                        remove: removeProduct,
+                        update: updateProduct,
+                      ),
+                    )
+                  : Container(
+                      height: SizeConfig.blockSizeVertical * 55,
+                      child: Center(
+                        child: Text(
+                          'Your Cart is Empty!',
+                          style: TextStyle(
+                            fontSize: SizeConfig.safeBlockHorizontal * 4.5,
+                          ),
+                        ),
+                      ),
+                    ),
               Spacer(),
               Padding(
                 padding: EdgeInsets.symmetric(
@@ -123,9 +136,17 @@ class _CartScreenState extends State<CartScreen> {
                       press: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (ctx) => CheckoutScreen(
-                            category: widget.category,
-                          ),
+                          builder: (ctx) => widget.category.templateId != 5 &&
+                                  widget.category.templateId != 4 &&
+                                  widget.category.templateId != 1
+                              ? CheckoutScreen(
+                                  category: widget.category,
+                                  cart: cart,
+                                )
+                              : Checkout2Screen(
+                                  category: widget.category,
+                                  cart: cart,
+                                ),
                         ),
                       ),
                     )

@@ -49,7 +49,7 @@ class AccountScreen extends StatelessWidget {
                   ),
                 ),
                 AccountListItem(
-                  title: trans(context, 'suggest_or_complain'),
+                  title: trans(context, 'complain_or_suggest'),
                   icon: FluentIcons.signature_24_regular,
                   onPressed: () => Navigator.pushNamed(
                     context,

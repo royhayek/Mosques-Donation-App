@@ -25,7 +25,7 @@ void modalBottomSheetAttributes(BuildContext context,
     Function findProductVariation,
     List<ProductAttributes> productAttributes,
     Function addProductToCart}) {
-  wsModalBottom(
+  modalBottom(
     context,
     height: 250,
     title: '',
@@ -78,7 +78,7 @@ void modalBottomSheetAttributes(BuildContext context,
             style: TextStyle(color: Colors.black),
           ),
           DefaultButton(
-            text: "Add to cart",
+            text: "Continue",
             press: () {
               if (tmpAttributeObj.isEmpty) {
                 Fluttertoast.showToast(
@@ -111,7 +111,7 @@ void modalBottomSheetAttributes(BuildContext context,
   );
 }
 
-void wsModalBottom(BuildContext context,
+void modalBottom(BuildContext context,
     {double height, String title, Widget bodyWidget, Widget extraWidget}) {
   showModalBottomSheet(
     context: context,
@@ -164,7 +164,7 @@ void modalBottomSheetOptionsForAttribute(
     Function findProductVariation,
     List<ProductAttributes> productAttributes,
     Function addProductToCart) {
-  wsModalBottom(
+  modalBottom(
     context,
     height: 300,
     title: "Select an option",

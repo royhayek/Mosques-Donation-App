@@ -4,8 +4,10 @@ import '../../../size_config.dart';
 
 class CustomTextField extends StatelessWidget {
   final int maxLines;
+  final TextEditingController controller;
 
-  const CustomTextField({Key key, this.maxLines}) : super(key: key);
+  const CustomTextField({Key key, this.maxLines, this.controller})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +19,7 @@ class CustomTextField extends StatelessWidget {
         ),
       ),
       child: TextFormField(
+        controller: controller,
         maxLines: maxLines,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(

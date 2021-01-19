@@ -1,9 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:mosques_donation_app/models/cart.dart';
 import 'package:mosques_donation_app/models/category.dart';
+import 'package:mosques_donation_app/models/order.dart';
 import 'package:mosques_donation_app/models/organisation.dart';
+import 'package:mosques_donation_app/models/subcategory.dart';
 import 'package:mosques_donation_app/screens/checkout%202/checkout_2_screen.dart';
 import 'package:mosques_donation_app/screens/checkout/widgets/custom_text_field.dart';
 import 'package:mosques_donation_app/screens/products_list/products_list_screen.dart';
@@ -17,16 +21,24 @@ const kGoogleApiKey = "AIzaSyBG3keQpOZF3ISJgrlVBencyf3ZcmeQpfw";
 class CheckoutScreen extends StatefulWidget {
   static String routeName = "checkout_screen";
 
+  final Subcategory subcategory;
   final Category category;
+  final int categoryId;
+  final Cart cart;
 
-  const CheckoutScreen({Key key, this.category}) : super(key: key);
+  const CheckoutScreen(
+      {Key key, this.subcategory, this.categoryId, this.category, this.cart})
+      : super(key: key);
 
   @override
   _CheckoutScreenState createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _notesController = TextEditingController();
   static final kInitialPosition = LatLng(29.378586, 47.990341);
+  FirebaseAuth _auth = FirebaseAuth.instance;
   List<Organisation> organisations = [];
   Widget _body;
   String selectedOrganisation;
@@ -35,20 +47,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    print(widget.category.templateId);
-    switch (widget.category.templateId) {
-      case 1:
-        _body = Container();
-        break;
-      case 2:
-        _body = _getMosques();
-        break;
-      case 3:
-        _getOrganisations();
-        break;
-      case 4:
+    if (widget.category != null) {
+      switch (widget.category.templateId) {
+        case 1:
+          _body = Container();
+          break;
+        case 2:
+        case 5:
+          _body = _getMosques();
+          break;
+        case 3:
+          _getOrganisations();
+          break;
+        case 4:
+          _body = _buildCustomDonation();
+          break;
+      }
+    } else if (widget.subcategory != null) {
+      if (widget.subcategory.showCustomField == 1) {
         _body = _buildCustomDonation();
-        break;
+      }
     }
   }
 
@@ -65,7 +83,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.category.name),
+          title: Text(
+            widget.category != null
+                ? widget.category.name
+                : widget.subcategory.name,
+          ),
           centerTitle: true,
         ),
         body: _body);
@@ -151,35 +173,50 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   _buildCustomDonation() {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: SizeConfig.blockSizeHorizontal * 8,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: SizeConfig.blockSizeVertical * 3),
-          Text(
-            trans(context, 'phone_no'),
-            style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
-          ),
-          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-          CustomTextField(maxLines: 1),
-          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-          Text(
-            trans(context, 'please_describe_your_donation'),
-            style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
-          ),
-          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-          CustomTextField(maxLines: 6),
-          SizedBox(height: SizeConfig.blockSizeVertical * 5),
-          DefaultButton(
-            press: () => null,
-            text: trans(context, 'submit'),
-          ),
-        ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: SizeConfig.blockSizeHorizontal * 8,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: SizeConfig.blockSizeVertical * 3),
+            Text(
+              trans(context, 'phone_no'),
+              style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+            ),
+            SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+            CustomTextField(maxLines: 1, controller: _phoneController),
+            SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+            Text(
+              trans(context, 'please_describe_your_donation'),
+              style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+            ),
+            SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+            CustomTextField(maxLines: 6, controller: _notesController),
+            SizedBox(height: SizeConfig.blockSizeVertical * 5),
+            DefaultButton(
+              press: () => _customDonationCheckout(),
+              text: trans(context, 'submit'),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  _customDonationCheckout() async {
+    Order order = new Order();
+    order.categoryId = widget.categoryId;
+    // order.cemetry = _selectedCemetry;
+    // order.donorName = _nameController.value.text;
+    order.phoneNo = _phoneController.value.text;
+    order.deliveryNotes = _notesController.value.text;
+    // order.cartId = widget.cart.id;
+    order.userId = _auth.currentUser.uid.toString();
+
+    await HttpService.makeOrder(order);
   }
 
   _getMosques() {
@@ -213,7 +250,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             elevation: 5,
             borderRadius: BorderRadius.circular(12.0),
             child: Padding(
-              padding: EdgeInsets.only(top: 10, bottom: 10),
+              padding:
+                  EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 10),
               child: selectedPlace != null
                   ? Column(
                       children: [
@@ -235,6 +273,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       )
                                     : Checkout2Screen(
                                         category: widget.category,
+                                        mosque: selectedPlace,
+                                        cart: widget.cart,
                                       ),
                               ),
                             );

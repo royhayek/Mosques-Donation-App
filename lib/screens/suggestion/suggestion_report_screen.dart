@@ -17,14 +17,14 @@ class _SuggestionReportScreenState extends State<SuggestionReportScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _verticalGroupValue = trans(context, 'suggestion');
+    _verticalGroupValue = trans(context, 'complaint');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(trans(context, 'suggest_or_complain')),
+        title: Text(trans(context, 'complain_or_suggest')),
         centerTitle: true,
       ),
       body: Padding(
@@ -43,8 +43,8 @@ class _SuggestionReportScreenState extends State<SuggestionReportScreen> {
                 _verticalGroupValue = value;
               }),
               items: [
-                trans(context, 'suggestion'),
-                trans(context, 'complaint')
+                trans(context, 'complaint'),
+                trans(context, 'suggestion')
               ],
               itemBuilder: (item) => RadioButtonBuilder(
                 item,
