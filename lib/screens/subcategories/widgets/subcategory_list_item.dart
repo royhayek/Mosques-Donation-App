@@ -6,6 +6,8 @@ import 'package:mosques_donation_app/models/subcategory.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
+import 'package:flutter_number_picker/flutter_number_picker.dart';
+import 'package:mosques_donation_app/widgets/default_button.dart';
 
 class SubCategoryListItem extends StatefulWidget {
   final Product product;
@@ -25,6 +27,7 @@ class _SubCategoryListItemState extends State<SubCategoryListItem> {
   List<ProductAttributes> attributes;
   Map<int, dynamic> tmpAttributeObj = {};
   bool isRetrieving = true;
+  int selectedQuantity = 1;
 
   @override
   void initState() {
@@ -49,8 +52,47 @@ class _SubCategoryListItemState extends State<SubCategoryListItem> {
 
   addProductToCart(
       int productId, int attributeId, int quantity, num price) async {
-    await HttpService.addToCart(_auth.currentUser.uid, widget.categoryId,
-        productId, attributeId, quantity, price);
+    modalBottom(context,
+        height: SizeConfig.blockSizeVertical * 30,
+        title: 'Select Quantity',
+        bodyWidget: Column(
+          children: [
+            SizedBox(height: SizeConfig.blockSizeVertical * 3),
+            SizedBox(
+              height: SizeConfig.blockSizeVertical * 8,
+              child: CustomNumberPicker(
+                initialValue: 1,
+                maxValue: 100,
+                minValue: 0,
+                step: 1,
+                onValue: (value) {
+                  print(value.toString());
+                  setState(() {
+                    selectedQuantity = value;
+                  });
+                },
+              ),
+            ),
+            SizedBox(height: SizeConfig.blockSizeVertical * 3),
+            DefaultButton(
+              text: 'Add to Cart',
+              press: () async {
+                print(selectedQuantity);
+                await HttpService.addToCart(
+                  _auth.currentUser.uid,
+                  widget.categoryId,
+                  productId,
+                  attributeId,
+                  selectedQuantity,
+                  price * selectedQuantity,
+                );
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ));
+    // await HttpService.addToCart(_auth.currentUser.uid, widget.categoryId,
+    //     productId, attributeId, quantity, price);
   }
 
   ProductAttributes findProductVariation() {

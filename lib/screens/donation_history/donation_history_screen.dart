@@ -1,6 +1,9 @@
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mosques_donation_app/models/product.dart';
 import 'package:mosques_donation_app/screens/donation_history/widgets/donation_list_item.dart';
+import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 
@@ -13,12 +16,31 @@ class DonationHistoryScreen extends StatefulWidget {
 
 class _DonationHistoryScreenState extends State<DonationHistoryScreen>
     with SingleTickerProviderStateMixin {
+  FirebaseAuth _auth = FirebaseAuth.instance;
   TabController _tabController;
+  List<Product> _pending = [];
+  List<Product> _completed = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = new TabController(vsync: this, length: 2);
+
+    getUserOrderHistory();
+  }
+
+  getUserOrderHistory() async {
+    await HttpService.getUserOrders(_auth.currentUser.uid).then((history) {
+      history.forEach((h) {
+        if (h.status == 2) _pending.add(h);
+        if (h.status == 3) _completed.add(h);
+      });
+    });
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -32,6 +54,7 @@ class _DonationHistoryScreenState extends State<DonationHistoryScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(trans(context, 'donation_history')),
+        centerTitle: true,
         bottom: TabBar(
           isScrollable: true,
           unselectedLabelColor: Colors.grey,
@@ -40,7 +63,7 @@ class _DonationHistoryScreenState extends State<DonationHistoryScreen>
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: <Tab>[
             Tab(text: trans(context, 'pending')),
-            Tab(text: trans(context, 'complete')),
+            Tab(text: trans(context, 'completed')),
           ],
           controller: _tabController,
           indicator: BubbleTabIndicator(
@@ -54,20 +77,25 @@ class _DonationHistoryScreenState extends State<DonationHistoryScreen>
         controller: _tabController,
         children: <Tab>[
           Tab(text: trans(context, 'pending')),
-          Tab(text: trans(context, 'complete')),
+          Tab(text: trans(context, 'completed')),
         ].map((Tab tab) {
           return tab.text == 'Pending'
-              ? ListView(
-                  children: [
-                    DonationListItem(),
-                    DonationListItem(),
-                  ],
-                )
-              : ListView(
-                  children: [
-                    DonationListItem(),
-                  ],
-                );
+              ? !_isLoading
+                  ? ListView.builder(
+                      itemCount: _pending.length,
+                      itemBuilder: (context, index) {
+                        return DonationListItem(product: _pending[index]);
+                      },
+                    )
+                  : Center(child: CircularProgressIndicator())
+              : !_isLoading
+                  ? ListView.builder(
+                      itemCount: _completed.length,
+                      itemBuilder: (context, index) {
+                        return DonationListItem(product: _completed[index]);
+                      },
+                    )
+                  : Center(child: CircularProgressIndicator());
         }).toList(),
       ),
     );

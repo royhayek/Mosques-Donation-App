@@ -14,6 +14,7 @@ import 'package:mosques_donation_app/screens/subcategories/subcategories_screen.
 import 'package:mosques_donation_app/screens/suggestion/suggestion_report_screen.dart';
 import 'package:mosques_donation_app/screens/tab_screens.dart';
 import 'package:mosques_donation_app/screens/otp/otp_screen.dart';
+import 'package:mosques_donation_app/screens/top_ten_products_list/top_products_list_screen.dart';
 
 // We use name route
 // All our routes will be available here
@@ -32,4 +33,5 @@ final Map<String, WidgetBuilder> routes = {
   CheckoutScreen.routeName: (context) => CheckoutScreen(),
   Checkout2Screen.routeName: (context) => Checkout2Screen(),
   SignUpScreen.routeName: (context) => SignUpScreen(),
+  TopTenProductsListScreen.routeName: (context) => TopTenProductsListScreen(),
 };

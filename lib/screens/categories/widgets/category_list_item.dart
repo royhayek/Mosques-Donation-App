@@ -40,7 +40,11 @@ class CategoryListItem extends StatelessWidget {
               : Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CheckoutScreen(category: category),
+                    builder: (context) => CheckoutScreen(
+                      subcategory: subcategory,
+                      category: category,
+                      categoryId: categoryId,
+                    ),
                   ),
                 ),
       child: Container(
@@ -70,9 +74,10 @@ class CategoryListItem extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 1,
               style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Colors.black87),
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: Colors.black87,
+              ),
             ),
           ],
         ),

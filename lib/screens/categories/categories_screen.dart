@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
 import 'package:mosques_donation_app/screens/cart_categories/cart_categories_screen.dart';
 import 'package:mosques_donation_app/screens/categories/widgets/category_list_item.dart';
+import 'package:mosques_donation_app/screens/top_ten_products_list/top_products_list_screen.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
+import 'package:mosques_donation_app/widgets/custom_card_button.dart';
 import 'package:provider/provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,7 +34,7 @@ class CategoriesScreen extends StatelessWidget {
         child: Column(
           children: [
             _buildBannerCarousel(),
-            _buildProductsButton(),
+            _buildProductsButton(context),
             _buildCategoryGridView(),
           ],
         ),
@@ -102,34 +104,17 @@ class CategoriesScreen extends StatelessWidget {
     );
   }
 
-  _buildProductsButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 90,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: SizeConfig.blockSizeHorizontal * 4,
-          vertical: SizeConfig.blockSizeVertical * 2,
-        ),
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          elevation: 4,
-          child: FlatButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            onPressed: () => null,
-            child: Text(
-              'افضل ١٠ منتجات',
-              style: TextStyle(
-                fontSize: SizeConfig.safeBlockHorizontal * 4.5,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
+  _buildProductsButton(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: SizeConfig.blockSizeHorizontal * 4,
+        vertical: SizeConfig.blockSizeVertical * 2,
+      ),
+      child: CustomCardButton(
+        height: SizeConfig.blockSizeVertical * 10,
+        text: 'افضل ١٠ منتجات',
+        onPressed: () =>
+            Navigator.pushNamed(context, TopTenProductsListScreen.routeName),
       ),
     );
   }
