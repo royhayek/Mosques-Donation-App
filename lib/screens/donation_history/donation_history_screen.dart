@@ -33,8 +33,9 @@ class _DonationHistoryScreenState extends State<DonationHistoryScreen>
   getUserOrderHistory() async {
     await HttpService.getUserOrders(_auth.currentUser.uid).then((history) {
       history.forEach((h) {
-        if (h.status == 2) _pending.add(h);
-        if (h.status == 3) _completed.add(h);
+        print(h);
+        if (h.status == 1) _pending.add(h);
+        if (h.status == 2) _completed.add(h);
       });
     });
 
@@ -78,25 +79,27 @@ class _DonationHistoryScreenState extends State<DonationHistoryScreen>
         children: <Tab>[
           Tab(text: trans(context, 'pending')),
           Tab(text: trans(context, 'completed')),
-        ].map((Tab tab) {
-          return tab.text == 'Pending'
-              ? !_isLoading
-                  ? ListView.builder(
-                      itemCount: _pending.length,
-                      itemBuilder: (context, index) {
-                        return DonationListItem(product: _pending[index]);
-                      },
-                    )
-                  : Center(child: CircularProgressIndicator())
-              : !_isLoading
-                  ? ListView.builder(
-                      itemCount: _completed.length,
-                      itemBuilder: (context, index) {
-                        return DonationListItem(product: _completed[index]);
-                      },
-                    )
-                  : Center(child: CircularProgressIndicator());
-        }).toList(),
+        ].map(
+          (Tab tab) {
+            return tab.text == trans(context, 'pending')
+                ? !_isLoading
+                    ? ListView.builder(
+                        itemCount: _pending.length,
+                        itemBuilder: (context, index) => DonationListItem(
+                          product: _pending[index],
+                        ),
+                      )
+                    : Center(child: CircularProgressIndicator())
+                : !_isLoading
+                    ? ListView.builder(
+                        itemCount: _completed.length,
+                        itemBuilder: (context, index) => DonationListItem(
+                          product: _completed[index],
+                        ),
+                      )
+                    : Center(child: CircularProgressIndicator());
+          },
+        ).toList(),
       ),
     );
   }

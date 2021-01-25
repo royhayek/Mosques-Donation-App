@@ -1,4 +1,4 @@
-package com.example.mosquesdonationapp
+package com.tactechs.mosquesdonationapp
 
 import io.flutter.app.FlutterApplication
 import io.flutter.plugin.common.PluginRegistry

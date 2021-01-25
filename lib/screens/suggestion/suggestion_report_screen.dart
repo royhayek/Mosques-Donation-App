@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:group_radio_button/group_radio_button.dart';
+import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
@@ -12,6 +14,7 @@ class SuggestionReportScreen extends StatefulWidget {
 }
 
 class _SuggestionReportScreenState extends State<SuggestionReportScreen> {
+  TextEditingController _messageController = TextEditingController();
   String _verticalGroupValue;
 
   @override
@@ -67,6 +70,7 @@ class _SuggestionReportScreenState extends State<SuggestionReportScreen> {
               ),
               child: TextFormField(
                 maxLines: 6,
+                controller: _messageController,
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: SizeConfig.blockSizeHorizontal * 3,
@@ -80,12 +84,22 @@ class _SuggestionReportScreenState extends State<SuggestionReportScreen> {
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 5),
             DefaultButton(
-              press: () => null,
+              press: () => _sendMessage(),
               text: trans(context, 'submit'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  _sendMessage() async {
+    if (_verticalGroupValue.isNotEmpty && _messageController.text.isNotEmpty)
+      await HttpService.sendMessage(
+        _verticalGroupValue,
+        _messageController.text,
+      );
+    else
+      Fluttertoast.showToast(msg: trans(context, 'please_write_something'));
   }
 }

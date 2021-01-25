@@ -5,8 +5,10 @@ import '../../../size_config.dart';
 class CustomTextField extends StatelessWidget {
   final int maxLines;
   final TextEditingController controller;
+  final Function onChanged;
 
-  const CustomTextField({Key key, this.maxLines, this.controller})
+  const CustomTextField(
+      {Key key, this.maxLines, this.controller, this.onChanged})
       : super(key: key);
 
   @override
@@ -30,6 +32,10 @@ class CustomTextField extends StatelessWidget {
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
         ),
+        onChanged: (keyword) {
+          onChanged(keyword);
+          // print(keyword);
+        },
       ),
     );
   }

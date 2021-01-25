@@ -3,6 +3,7 @@ import 'package:mosques_donation_app/models/product.dart';
 import 'package:mosques_donation_app/screens/subcategories/widgets/subcategory_list_item.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
+import 'package:mosques_donation_app/utils/utils.dart';
 
 class TopTenProductsListScreen extends StatefulWidget {
   static const routeName = 'top_ten_products_list_screen';
@@ -34,34 +35,39 @@ class _TopTenProductsListScreenState extends State<TopTenProductsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Top 10 Products'),
+        title: Text(trans(context, 'top_ten_products')),
         centerTitle: true,
       ),
-      body: !_isLoading
-          ? _products.isNotEmpty
-              ? GridView.builder(
-                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 50),
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.7,
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
-                  ),
-                  itemCount: _products.length,
-                  itemBuilder: (context, index) {
-                    return SubCategoryListItem(product: _products[index]);
-                  },
-                )
-              : Center(
-                  child: Text(
-                    'No Products Yet',
-                    style: TextStyle(
-                      fontSize: SizeConfig.safeBlockHorizontal * 5,
+      body: SingleChildScrollView(
+        child: !_isLoading
+            ? _products.isNotEmpty
+                ? GridView.builder(
+                    padding: EdgeInsets.only(left: 20, right: 20, bottom: 50),
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.7,
+                      crossAxisSpacing: 4,
+                      mainAxisSpacing: 4,
                     ),
-                  ),
-                )
-          : Center(child: CircularProgressIndicator()),
+                    itemCount: _products.length,
+                    itemBuilder: (context, index) {
+                      return SubCategoryListItem(product: _products[index]);
+                    },
+                  )
+                : Center(
+                    child: Text(
+                      trans(context, 'no_products_yet'),
+                      style: TextStyle(
+                        fontSize: SizeConfig.safeBlockHorizontal * 5,
+                      ),
+                    ),
+                  )
+            : Container(
+                height: SizeConfig.blockSizeVertical * 70,
+                child: Center(child: CircularProgressIndicator())),
+      ),
     );
   }
 }

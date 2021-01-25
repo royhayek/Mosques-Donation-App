@@ -9,9 +9,7 @@ import 'package:mosques_donation_app/widgets/default_button.dart';
 import 'package:provider/provider.dart';
 
 String trans(BuildContext context, String text) {
-  String translated;
-  translated = AppLocalizations.of(context).translate(text);
-  return translated;
+  return AppLocalizations.of(context).translate(text);
 }
 
 bool isEnglish(BuildContext context) {
@@ -19,55 +17,92 @@ bool isEnglish(BuildContext context) {
   return appProvider.getLanguage() == 'English';
 }
 
-void modalBottomSheetAttributes(BuildContext context,
+void modalBottomSheetAttributes(BuildContext modalcontext,
     {Product product,
     Map tmpAttributeObj,
     Function findProductVariation,
     List<ProductAttributes> productAttributes,
     Function addProductToCart}) {
   modalBottom(
-    context,
-    height: 250,
+    modalcontext,
+    height: product.description != null ? 400 : 250,
     title: '',
-    bodyWidget: ListView.separated(
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: 1,
-      separatorBuilder: (BuildContext context, int index) => Divider(
-        color: Colors.black12,
-        thickness: 1,
-      ),
-      itemBuilder: (BuildContext context, int index) {
-        print(tmpAttributeObj);
-        return ListTile(
-          title:
-              Text('Select an option', style: TextStyle(color: Colors.black)),
-          trailing: (tmpAttributeObj.isNotEmpty)
-              ? Text(tmpAttributeObj["name"])
-              : Icon(Icons.chevron_right),
-          onTap: () => modalBottomSheetOptionsForAttribute(
-            context,
-            product,
-            tmpAttributeObj,
-            findProductVariation,
-            productAttributes,
-            addProductToCart,
-          ),
-        );
-      },
+    bodyWidget: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Wrap(
+          children: [
+            product.description != null
+                ? Text(
+                    trans(modalcontext, 'description'),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  )
+                : Container(),
+            Text(
+              product.description.length > 150
+                  ? product.description.substring(0, 150)
+                  : product.description,
+              softWrap: true,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: Colors.black, fontSize: 15),
+            ),
+            product.description.length > 150
+                ? InkWell(
+                    onTap: () => _showDescriptionDialog(
+                        modalcontext, product.description),
+                    child: Text(
+                      ' ${trans(modalcontext, 'read_more')}',
+                      style:
+                          TextStyle(color: Theme.of(modalcontext).primaryColor),
+                    ),
+                  )
+                : Container(),
+          ],
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: 1,
+          itemBuilder: (BuildContext context, int index) {
+            print(tmpAttributeObj);
+            return ListTile(
+              title: Text(trans(modalcontext, 'select_an_option'),
+                  style: TextStyle(color: Colors.black)),
+              trailing: (tmpAttributeObj.isNotEmpty)
+                  ? Text(tmpAttributeObj["name"])
+                  : Icon(Icons.chevron_right),
+              onTap: () => modalBottomSheetOptionsForAttribute(
+                modalcontext,
+                product,
+                tmpAttributeObj,
+                findProductVariation,
+                productAttributes,
+                addProductToCart,
+              ),
+            );
+          },
+        ),
+      ],
     ),
     extraWidget: Container(
       child: Column(
         children: <Widget>[
           Text(
             (tmpAttributeObj.isNotEmpty
-                ? "Price" + ": " + '${tmpAttributeObj['value']} KD'
+                ? trans(modalcontext, 'price') +
+                    ": " +
+                    '${tmpAttributeObj['value']} ${trans(modalcontext, 'kd')}'
                 : (((productAttributes.length == tmpAttributeObj.values.length))
                     ? "This variation is unavailable"
-                    : "Choose your options")),
-            style: Theme.of(context)
-                .textTheme
-                .headline1
-                .merge(TextStyle(color: Colors.black, fontSize: 16)),
+                    : trans(modalcontext, 'select_your_option'))),
+            style: Theme.of(modalcontext).textTheme.headline1.merge(
+                  TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
           ),
           Text(
             (findProductVariation() != null
@@ -78,11 +113,14 @@ void modalBottomSheetAttributes(BuildContext context,
             style: TextStyle(color: Colors.black),
           ),
           DefaultButton(
-            text: "Continue",
+            text: trans(modalcontext, 'continue'),
             press: () {
-              if (tmpAttributeObj.isEmpty) {
+              print(productAttributes.length);
+              print(tmpAttributeObj.values.length);
+              if (tmpAttributeObj['value'] == null) {
                 Fluttertoast.showToast(
-                    msg: 'Please select valid options first');
+                  msg: trans(modalcontext, 'please_select_an_option_first'),
+                );
                 return;
               }
 
@@ -96,10 +134,13 @@ void modalBottomSheetAttributes(BuildContext context,
               print('variations $tmpAttributeObj');
 
               addProductToCart(
+                modalcontext,
                 tmpAttributeObj['productId'],
                 tmpAttributeObj['attributeId'],
                 1,
                 tmpAttributeObj['value'],
+                true,
+                null,
               );
             },
           ),
@@ -111,12 +152,31 @@ void modalBottomSheetAttributes(BuildContext context,
   );
 }
 
-void modalBottom(BuildContext context,
+_showDescriptionDialog(BuildContext dialogcontext, String description) {
+  showDialog(
+    context: dialogcontext,
+    builder: (BuildContext ctx) {
+      return AlertDialog(
+        content: Text(
+          description,
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void modalBottom(BuildContext modalcontext,
     {double height, String title, Widget bodyWidget, Widget extraWidget}) {
+  print(height);
   showModalBottomSheet(
-    context: context,
+    context: modalcontext,
     backgroundColor: Colors.transparent,
-    builder: (builder) {
+    builder: (context) {
       return SafeArea(
         child: Container(
           height: height,
@@ -134,7 +194,7 @@ void modalBottom(BuildContext context,
             child: Column(
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5),
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
                     title,
                     style: TextStyle(fontSize: 20),
@@ -158,16 +218,16 @@ void modalBottom(BuildContext context,
 }
 
 void modalBottomSheetOptionsForAttribute(
-    BuildContext context,
+    BuildContext modalcontext,
     Product product,
     Map tmpAttributeObj,
     Function findProductVariation,
     List<ProductAttributes> productAttributes,
     Function addProductToCart) {
   modalBottom(
-    context,
+    modalcontext,
     height: 300,
-    title: "Select an option",
+    title: trans(modalcontext, 'select_your_option'),
     bodyWidget: ListView.separated(
       itemCount: productAttributes.length,
       separatorBuilder: (BuildContext context, int index) => Divider(),
@@ -181,7 +241,10 @@ void modalBottomSheetOptionsForAttribute(
               ),
               Spacer(),
               Text(
-                '${productAttributes[index].price.toString()} KD',
+                productAttributes[index].salePrice != null &&
+                        productAttributes[index].salePrice != 0
+                    ? '${productAttributes[index].salePrice.toString()} ${trans(modalcontext, 'kd')}'
+                    : '${productAttributes[index].price.toString()} ${trans(modalcontext, 'kd')}',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
               )
             ],
@@ -196,13 +259,16 @@ void modalBottomSheetOptionsForAttribute(
               "productId": productAttributes[index].productId,
               "attributeId": productAttributes[index].id,
               "name": productAttributes[index].name,
-              "value": productAttributes[index].price
+              "value": productAttributes[index].salePrice != null &&
+                      productAttributes[index].salePrice != 0
+                  ? productAttributes[index].salePrice
+                  : productAttributes[index].price
             };
             print(tmpAttributeObj);
-            Navigator.pop(context);
-            Navigator.pop(context);
+            Navigator.pop(modalcontext);
+            Navigator.pop(modalcontext);
             modalBottomSheetAttributes(
-              context,
+              modalcontext,
               product: product,
               tmpAttributeObj: tmpAttributeObj,
               findProductVariation: findProductVariation,

@@ -37,6 +37,7 @@ class ProductsListScreen extends StatefulWidget {
 }
 
 class _ProductsListScreenState extends State<ProductsListScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DetailsResult detailsResult;
   List<Uint8List> images = [];
   List<String> imagesString = [];
@@ -93,6 +94,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -105,7 +107,10 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                   color: Theme.of(context).scaffoldBackgroundColor,
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.white, blurRadius: 1, spreadRadius: 0.5)
+                      color: Colors.white,
+                      blurRadius: 1,
+                      spreadRadius: 0.5,
+                    )
                   ],
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(30),
@@ -213,8 +218,11 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
               child: !isLoading
                   ? products != null && products.isNotEmpty
                       ? GridView.builder(
-                          padding:
-                              EdgeInsets.only(left: 20, right: 20, bottom: 50),
+                          padding: EdgeInsets.only(
+                            left: 20,
+                            right: 20,
+                            bottom: 50,
+                          ),
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
@@ -225,6 +233,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                           shrinkWrap: true,
                           itemCount: products.length,
                           itemBuilder: (context, index) => SubCategoryListItem(
+                            context: context,
                             product: products[index],
                             categoryId: widget.category != null
                                 ? widget.category.id
@@ -232,7 +241,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                             subcategory: widget.subcategory,
                           ),
                         )
-                      : Center(child: Text('No Products Available'))
+                      : Center(child: Text(trans(context, 'no_products_yet')))
                   : Center(child: CircularProgressIndicator()),
             ),
           ),

@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:mosques_donation_app/models/banner.dart';
+import 'package:mosques_donation_app/models/banner.dart' as b;
 import 'package:mosques_donation_app/models/cart.dart';
 import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/models/order.dart';
@@ -13,7 +14,7 @@ import 'package:mosques_donation_app/models/product_attributes.dart';
 class HttpService {
   // Host URL (Replace it with your host)
   // static const URL = 'http://mosquesapp.royhayek.com';
-  static const URL = 'http://192.168.1.103:8000';
+  static const URL = 'http://mosquesapp.royhayek.com';
 
   // API URL (The file performing CRUD operations)
   static const API = URL + '/api';
@@ -32,6 +33,9 @@ class HttpService {
         final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
         List<Category> categories =
             parsed.map<Category>((json) => Category.fromJson(json)).toList();
+        if (categories != null) {
+          print('Retrieved Categories');
+        }
         return categories;
       } else {
         return List<Category>();
@@ -42,21 +46,24 @@ class HttpService {
     }
   }
 
-  static Future<List<Banner>> getBanners() async {
+  static Future<List<b.Banner>> getBanners() async {
     try {
       final response = await http
           .get(API + '/banners', headers: {"Accept": "application/json"});
       if (200 == response.statusCode) {
         final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
-        List<Banner> categories =
-            parsed.map<Banner>((json) => Banner.fromJson(json)).toList();
-        return categories;
+        List<b.Banner> banners =
+            parsed.map<b.Banner>((json) => b.Banner.fromJson(json)).toList();
+        if (banners != null) {
+          print('Retrieved Banners');
+        }
+        return banners;
       } else {
-        return List<Banner>();
+        return List<b.Banner>();
       }
     } catch (e) {
       print(e);
-      return List<Banner>();
+      return List<b.Banner>();
     }
   }
 
@@ -117,8 +124,14 @@ class HttpService {
     }
   }
 
-  static Future<String> addToCart(String userId, int categoryId, int productId,
-      int attributeId, int quantity, num price) async {
+  static Future<String> addToCart(
+      BuildContext context,
+      String userId,
+      int categoryId,
+      int productId,
+      int attributeId,
+      int quantity,
+      num price) async {
     try {
       final response = await http.post(API + '/carts', body: {
         'userId': userId.toString(),
@@ -134,7 +147,6 @@ class HttpService {
       print(response.body);
       if (201 == response.statusCode) {
         final parsed = json.decode(response.body);
-        Fluttertoast.showToast(msg: parsed['message']);
         return parsed['message'];
       } else {
         return null;
@@ -145,22 +157,45 @@ class HttpService {
     }
   }
 
-  static Future<Cart> getUserCart(String userId, int categoryId) async {
+  static Future<List<Cart>> getUserCart(String userId) async {
     try {
       final response = await http.get(
-        API + '/getUserCart/$userId/$categoryId',
+        API + '/getUserCart/$userId',
+        headers: {"Accept": "application/json"},
+      );
+      print(response.body);
+      if (200 == response.statusCode) {
+        final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
+        List<Cart> cart =
+            parsed.map<Cart>((json) => Cart.fromJson(json)).toList();
+        return cart;
+      } else {
+        return List<Cart>();
+      }
+    } catch (e) {
+      print(e);
+      return List<Cart>();
+    }
+  }
+
+  static Future<int> getCartCount(String userId) async {
+    try {
+      final response = await http.get(
+        API + '/getCartCount/$userId',
         headers: {"Accept": "application/json"},
       );
       if (200 == response.statusCode) {
         final parsed = json.decode(response.body);
-        Cart cart = Cart.fromJson(parsed);
-        return cart;
+        if (parsed['count'] != null) {
+          print('Retrieved Cart Count');
+        }
+        return parsed['count'];
       } else {
-        return Cart();
+        return 0;
       }
     } catch (e) {
       print(e);
-      return Cart();
+      return 0;
     }
   }
 
@@ -309,6 +344,60 @@ class HttpService {
     try {
       final response = await http.get(API + '/getTopTenProducts',
           headers: {"Accept": "application/json"});
+      if (200 == response.statusCode) {
+        final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
+        List<Product> products =
+            parsed.map<Product>((json) => Product.fromJson(json)).toList();
+        return products;
+      } else {
+        return List<Product>();
+      }
+    } catch (e) {
+      print(e);
+      return List<Product>();
+    }
+  }
+
+  static Future sendMessage(String type, String message) async {
+    try {
+      final response = await http.post(API + '/complaintsuggestion',
+          body: {'type': type, 'message': message},
+          headers: {"Accept": "application/json"});
+      if (201 == response.statusCode) {
+        final parsed = json.decode(response.body);
+        Fluttertoast.showToast(msg: parsed['message']);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  static Future<List<Product>> searchProduct(String keyword) async {
+    try {
+      final response = await http.post(API + '/products/search',
+          body: {"keyword": keyword}, headers: {"Accept": "application/json"});
+      if (200 == response.statusCode) {
+        final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
+        List<Product> products =
+            parsed.map<Product>((json) => Product.fromJson(json)).toList();
+        print(response.body);
+        print(products);
+        return products;
+      } else {
+        return List<Product>();
+      }
+    } catch (e) {
+      print(e);
+      return List<Product>();
+    }
+  }
+
+  static Future<List<Product>> getAllProducts() async {
+    try {
+      final response = await http.get(
+        API + '/products',
+        headers: {"Accept": "application/json"},
+      );
       if (200 == response.statusCode) {
         final parsed = json.decode(response.body).cast<Map<String, dynamic>>();
         List<Product> products =
