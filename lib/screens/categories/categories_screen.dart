@@ -1,11 +1,14 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
+import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/screens/cart_categories/cart_categories_screen.dart';
 import 'package:mosques_donation_app/screens/categories/widgets/category_list_item.dart';
+import 'package:mosques_donation_app/screens/search/search_screen.dart';
 import 'package:mosques_donation_app/screens/top_ten_products_list/top_products_list_screen.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
+import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/custom_card_button.dart';
 import 'package:provider/provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -17,27 +20,66 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(FluentIcons.cart_24_regular, size: 30),
-          onPressed: () =>
-              Navigator.pushNamed(context, CartCategoriesScreen.routeName),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(FluentIcons.search_24_regular, size: 30),
-            onPressed: () => null,
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
+      appBar: _appBar(context),
+      body: _body(context),
+    );
+  }
+
+  _appBar(BuildContext context) {
+    return AppBar(
+      leading: IconButton(
+        icon: Stack(
           children: [
-            _buildBannerCarousel(),
-            _buildProductsButton(context),
-            _buildCategoryGridView(),
+            Icon(FluentIcons.cart_24_regular, size: 30),
+            Consumer<CartProvider>(
+              builder: (context, cart, _) => cart.getCartCount() != 0
+                  ? Padding(
+                      padding: isEnglish(context)
+                          ? EdgeInsets.only(
+                              right: SizeConfig.blockSizeHorizontal * 2.5,
+                            )
+                          : EdgeInsets.only(
+                              left: SizeConfig.blockSizeHorizontal * 2.5,
+                            ),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: CircleAvatar(
+                          maxRadius: 7,
+                          child: Text(
+                            '${cart.getCartCount()}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: SizeConfig.safeBlockHorizontal * 2.8,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
+            ),
           ],
         ),
+        onPressed: () =>
+            Navigator.pushNamed(context, CartCategoriesScreen.routeName),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(FluentIcons.search_24_regular, size: 30),
+          onPressed: () => Navigator.pushNamed(context, SearchScreen.routeName),
+        ),
+      ],
+    );
+  }
+
+  _body(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildBannerCarousel(),
+          _buildProductsButton(context),
+          _buildCategoryGridView(),
+        ],
       ),
     );
   }
@@ -112,7 +154,7 @@ class CategoriesScreen extends StatelessWidget {
       ),
       child: CustomCardButton(
         height: SizeConfig.blockSizeVertical * 10,
-        text: 'افضل ١٠ منتجات',
+        text: trans(context, 'top_ten_products'),
         onPressed: () =>
             Navigator.pushNamed(context, TopTenProductsListScreen.routeName),
       ),

@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mosques_donation_app/screens/otp/otp_screen.dart';
 import 'package:mosques_donation_app/screens/signup/widgets/countdown.dart';
 import 'package:mosques_donation_app/screens/signup/widgets/phone_text_field.dart';
 import 'package:mosques_donation_app/size_config.dart';
@@ -113,6 +112,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   verifyOTPCode() async {
+    print('we are here');
     setState(() {
       showCountdown = true;
     });
@@ -122,21 +122,25 @@ class _SignUpScreenState extends State<SignUpScreen>
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final code = codeController.text.trim();
+    print(code);
     AuthCredential credential = PhoneAuthProvider.credential(
       verificationId: verificationId,
       smsCode: code,
     );
+    print(credential);
 
     UserCredential result = await _auth.signInWithCredential(credential);
 
     User user = result.user;
+    print(user);
 
     if (user != null) {
+      print('we are here');
       await prefs.setBool('authenticated', true);
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OTPScreen(user: user),
+          builder: (context) => TabsScreen(),
         ),
       );
     } else {
@@ -273,7 +277,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   buildPhoneTextField(BuildContext context) {
-    countryCodeController.text = '+961';
+    countryCodeController.text = '+965';
     return Container(
       padding: EdgeInsets.symmetric(horizontal: SizeConfig.blockSizeHorizontal),
       child: Row(
@@ -299,6 +303,7 @@ class _SignUpScreenState extends State<SignUpScreen>
 
   buildOTPRow(BuildContext context) {
     return PinFieldAutoFill(
+      controller: codeController,
       decoration: UnderlineDecoration(
         textStyle: TextStyle(fontSize: 20, color: Colors.black),
         colorBuilder: FixedColorBuilder(Colors.black.withOpacity(0.3)),

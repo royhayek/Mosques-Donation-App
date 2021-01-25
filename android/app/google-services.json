@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "779564564560",
-    "project_id": "mosquesdonationapp-65a0c",
-    "storage_bucket": "mosquesdonationapp-65a0c.appspot.com"
+    "project_number": "626828735760",
+    "project_id": "mosquesdonationapp-3428b",
+    "storage_bucket": "mosquesdonationapp-3428b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:779564564560:android:8e91f15a2a85a0eae75155",
+        "mobilesdk_app_id": "1:626828735760:android:eed1c13ac0a89213aa2195",
         "android_client_info": {
-          "package_name": "com.example.mosquesdonationapp"
+          "package_name": "com.tactechs.mosquesdonationapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "779564564560-f4f8gd81jevcmtdmn9hsi52dihrjrfft.apps.googleusercontent.com",
+          "client_id": "626828735760-2mrd7cahqsvknauiacl2b1vuhcu8t97l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tactechs.mosquesdonationapp",
+            "certificate_hash": "50c49f94cf431594f5918bead7cc2b14efe126c6"
+          }
+        },
+        {
+          "client_id": "626828735760-vs2i6i15gp23o99q7db3m66drjksp579.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBpVyew5BxDAupLA4Ngmon-bMbbIJzy_hQ"
+          "current_key": "AIzaSyA2G5VtzjXP8xGrG-DqCeGQzEkwa3M8gV0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "779564564560-f4f8gd81jevcmtdmn9hsi52dihrjrfft.apps.googleusercontent.com",
+              "client_id": "626828735760-vs2i6i15gp23o99q7db3m66drjksp579.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

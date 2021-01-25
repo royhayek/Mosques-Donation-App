@@ -4,7 +4,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:mosques_donation_app/models/cart.dart';
-import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/models/order.dart';
 import 'package:mosques_donation_app/models/organisation.dart';
 import 'package:mosques_donation_app/models/subcategory.dart';
@@ -22,12 +21,10 @@ class CheckoutScreen extends StatefulWidget {
   static String routeName = "checkout_screen";
 
   final Subcategory subcategory;
-  final Category category;
   final int categoryId;
   final Cart cart;
 
-  const CheckoutScreen(
-      {Key key, this.subcategory, this.categoryId, this.category, this.cart})
+  const CheckoutScreen({Key key, this.categoryId, this.cart, this.subcategory})
       : super(key: key);
 
   @override
@@ -47,8 +44,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (widget.category != null) {
-      switch (widget.category.templateId) {
+    if (widget.cart != null) {
+      switch (widget.cart.templateId) {
         case 1:
           _body = Container();
           break;
@@ -60,12 +57,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           _getOrganisations();
           break;
         case 4:
-          _body = _buildCustomDonation();
+          // _body = _buildCustomDonation();
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (ctx) => Checkout2Screen(
+          //       cart: widget.cart,
+          //       categoryId: widget.categoryId,
+          //     ),
+          //   ),
+          // );
           break;
       }
     } else if (widget.subcategory != null) {
       if (widget.subcategory.showCustomField == 1) {
         _body = _buildCustomDonation();
+      } else {
+        _body = _getMosques();
       }
     }
   }
@@ -82,15 +90,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            widget.category != null
-                ? widget.category.name
-                : widget.subcategory.name,
-          ),
-          centerTitle: true,
-        ),
-        body: _body);
+      appBar: AppBar(
+        title: Text(widget.subcategory != null
+            ? widget.subcategory.name
+            : widget.cart.name),
+        centerTitle: true,
+      ),
+      body: _body,
+    );
   }
 
   _buildOrganisationsListView() {
@@ -194,7 +201,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-            CustomTextField(maxLines: 6, controller: _notesController),
+            CustomTextField(maxLines: 8, controller: _notesController),
             SizedBox(height: SizeConfig.blockSizeVertical * 5),
             DefaultButton(
               press: () => _customDonationCheckout(),
@@ -209,11 +216,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   _customDonationCheckout() async {
     Order order = new Order();
     order.categoryId = widget.categoryId;
-    // order.cemetry = _selectedCemetry;
-    // order.donorName = _nameController.value.text;
     order.phoneNo = _phoneController.value.text;
     order.deliveryNotes = _notesController.value.text;
-    // order.cartId = widget.cart.id;
     order.userId = _auth.currentUser.uid.toString();
 
     await HttpService.makeOrder(order);
@@ -256,12 +260,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ? Column(
                       children: [
                         Text(
-                          selectedPlace.formattedAddress,
+                          selectedPlace.name,
+                          textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 18),
                         ),
                         SizedBox(height: 10),
                         RaisedButton(
-                          child: Text('Select'),
+                          child: Text(trans(context, 'select')),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -272,7 +277,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                         photos: selectedPlace.photos,
                                       )
                                     : Checkout2Screen(
-                                        category: widget.category,
+                                        // category: widget.category,
+                                        categoryId: widget.categoryId,
                                         mosque: selectedPlace,
                                         cart: widget.cart,
                                       ),

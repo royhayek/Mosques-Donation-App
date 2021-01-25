@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
+import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/routes.dart';
 import 'package:mosques_donation_app/screens/splash_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -18,6 +19,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
           create: (_) => AppProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(),
         ),
       ],
       child: MyApp(),

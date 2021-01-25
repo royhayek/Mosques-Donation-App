@@ -9,8 +9,10 @@ class CartListItem extends StatelessWidget {
   final Product product;
   final Function remove;
   final Function update;
+  final bool isUpdating;
 
-  const CartListItem({Key key, this.product, this.remove, this.update})
+  const CartListItem(
+      {Key key, this.product, this.remove, this.update, this.isUpdating})
       : super(key: key);
 
   @override
@@ -57,7 +59,19 @@ class CartListItem extends StatelessWidget {
                       children: [
                         Text('${product.productPrice} ${trans(context, 'kd')}'),
                         Spacer(),
-                        quantityPickerWidget(context),
+                        isUpdating
+                            ? Expanded(
+                                child: Center(
+                                  child: SizedBox(
+                                    width: SizeConfig.blockSizeHorizontal * 4.5,
+                                    height:
+                                        SizeConfig.blockSizeHorizontal * 4.5,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2.2),
+                                  ),
+                                ),
+                              )
+                            : quantityPickerWidget(context),
                         SizedBox(width: SizeConfig.blockSizeHorizontal * 10),
                       ],
                     ),
@@ -71,9 +85,7 @@ class CartListItem extends StatelessWidget {
                   icon: Icon(FluentIcons.delete_28_regular),
                   splashRadius: SizeConfig.blockSizeHorizontal * 5,
                   iconSize: SizeConfig.blockSizeHorizontal * 6,
-                  onPressed: () {
-                    remove(product.cartId);
-                  },
+                  onPressed: () => remove(product.cartId),
                 ),
               ),
             ],

@@ -16,6 +16,7 @@ class Product {
   final int stockStatus;
   final String createdAt;
   final String updatedAt;
+  final int categoryId;
   final int subcategoryId;
   final int quantity;
   final ProductAttributes attribute;
@@ -38,6 +39,7 @@ class Product {
     this.updatedAt,
     this.subcategoryId,
     this.quantity,
+    this.categoryId,
     this.attribute,
   });
 
@@ -58,6 +60,7 @@ class Product {
       status: json['status'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
+      categoryId: json['categoryId'],
       subcategoryId: json['subcategoryId'],
       quantity: json['quantity'] != null ? json['quantity'] : 0,
       attribute: json['attribute'] != null

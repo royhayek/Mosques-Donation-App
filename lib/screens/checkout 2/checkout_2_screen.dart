@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,9 +8,9 @@ import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_maps_webservice/places.dart' as p;
 import 'package:location/location.dart';
 import 'package:mosques_donation_app/models/cart.dart';
-import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/models/order.dart';
 import 'package:mosques_donation_app/models/organisation.dart';
+import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/screens/checkout/widgets/custom_text_field.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
@@ -17,17 +18,18 @@ import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/custom_card_button.dart';
 import 'package:mosques_donation_app/widgets/custom_drop_down.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
+import 'package:provider/provider.dart';
 
 const kGoogleApiKey = "AIzaSyBG3keQpOZF3ISJgrlVBencyf3ZcmeQpfw";
 
 class Checkout2Screen extends StatefulWidget {
   static String routeName = "checkout_2_screen";
 
-  final Category category;
+  final int categoryId;
   final PickResult mosque;
   final Cart cart;
 
-  const Checkout2Screen({Key key, this.category, this.mosque, this.cart})
+  const Checkout2Screen({Key key, this.mosque, this.cart, this.categoryId})
       : super(key: key);
 
   @override
@@ -45,8 +47,12 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _notesController = TextEditingController();
   TextEditingController _mosqueController = TextEditingController();
+
   FirebaseAuth _auth = FirebaseAuth.instance;
+  CartProvider cartProvider;
+
   static final kInitialPosition = LatLng(29.378586, 47.990341);
+
   LocationData currentLocation;
   String _selectedOrganisation;
   String _selectedCemetry;
@@ -57,30 +63,42 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
     'مقبرة الجهراء',
     'المقبرة الجعفرية',
   ];
+  bool _showMosque = true;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    print('we are here');
-    switch (widget.category.templateId) {
-      case 1:
-        _getOrganisations();
-        break;
-      case 2:
-      case 5:
-        if (widget.mosque != null) {
-          _getLocation(
-            widget.mosque.geometry.location.lat,
-            widget.mosque.geometry.location.lng,
-            mosque: widget.mosque.formattedAddress,
-          );
-        }
-        break;
-      case 3:
-        break;
-      case 4:
-        break;
+    cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+    if (widget.cart != null) {
+      switch (widget.cart.templateId) {
+        case 1:
+          _getOrganisations();
+          break;
+        case 2:
+        case 5:
+          if (widget.mosque != null) {
+            _getLocation(
+              widget.mosque.geometry.location.lat,
+              widget.mosque.geometry.location.lng,
+              mosque: widget.mosque.name,
+            );
+          }
+          break;
+        case 3:
+          break;
+        case 4:
+          break;
+      }
+    } else {
+      if (widget.mosque != null) {
+        _getLocation(
+          widget.mosque.geometry.location.lat,
+          widget.mosque.geometry.location.lng,
+          mosque: widget.mosque.formattedAddress,
+        );
+      }
     }
   }
 
@@ -94,133 +112,175 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-            widget.category.templateId == 4
-                ? Column(
-                    children: [
-                      CustomCardButton(
-                        height: SizeConfig.blockSizeVertical * 8,
-                        text: 'Select Mosque',
-                        onPressed: () => _buildLocationMap(),
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1),
-                      Text('Or'),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1),
-                      CustomCardButton(
-                        height: SizeConfig.blockSizeVertical * 8,
-                        text: 'Select Current Location',
-                        onPressed: () => _determinePosition().then((position) {
-                          _getLocation(position.latitude, position.longitude);
-                        }),
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 3),
-                    ],
-                  )
+            widget.cart != null
+                ? widget.cart.templateId == 4
+                    ? Column(
+                        children: [
+                          CustomCardButton(
+                            height: SizeConfig.blockSizeVertical * 8,
+                            text: trans(context, 'select_mosque'),
+                            onPressed: () {
+                              setState(() {
+                                _showMosque = true;
+                              });
+                              _buildLocationMap();
+                            },
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1),
+                          Text(trans(context, 'or')),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1),
+                          CustomCardButton(
+                            height: SizeConfig.blockSizeVertical * 8,
+                            text: trans(context, 'select_current_location'),
+                            onPressed: () {
+                              setState(() {
+                                _showMosque = false;
+                              });
+                              _determinePosition().then((position) {
+                                _getLocation(
+                                    position.latitude, position.longitude);
+                              });
+                            },
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 3),
+                        ],
+                      )
+                    : Container()
                 : Container(),
-            widget.category.templateId == 1
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'By',
-                        style: TextStyle(
-                            fontSize: SizeConfig.safeBlockHorizontal * 4.8),
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      CustomStringDropDown(
-                        hint: '',
-                        enabled: true,
-                        height: SizeConfig.blockSizeVertical * 7,
-                        items: organisations.map((Organisation o) {
-                          return DropdownMenuItem<String>(
-                            value: o.name,
-                            child: Text(o.name),
-                          );
-                        }).toList(),
-                        selectedValue: _selectedOrganisation,
-                        onChanged: (name) {
-                          _selectedOrganisation = name;
-                        },
-                      ),
-                    ],
-                  )
+            widget.cart != null
+                ? widget.cart.templateId == 1
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${trans(context, 'by')}*',
+                            style: TextStyle(
+                                fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                          CustomStringDropDown(
+                            hint: '',
+                            enabled: true,
+                            height: SizeConfig.blockSizeVertical * 7,
+                            items: organisations.map((Organisation o) {
+                              return DropdownMenuItem<String>(
+                                value: o.name,
+                                child: Text(o.name),
+                              );
+                            }).toList(),
+                            selectedValue: _selectedOrganisation,
+                            onChanged: (name) {
+                              _selectedOrganisation = name;
+                            },
+                          ),
+                        ],
+                      )
+                    : Container()
                 : Container(),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
             Text(
-              trans(context, 'donator_name'),
+              '${trans(context, 'donator_name')}*',
               style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
             CustomTextField(maxLines: 1, controller: _nameController),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
             Text(
-              trans(context, 'phone_no'),
+              '${trans(context, 'phone_no')}*',
               style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
             CustomTextField(maxLines: 1, controller: _phoneController),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-            widget.category.templateId == 4
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'City',
-                        style: TextStyle(
-                            fontSize: SizeConfig.safeBlockHorizontal * 4.8),
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      CustomTextField(
-                        maxLines: 1,
-                        controller: _cityController,
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      Text(
-                        'Street',
-                        style: TextStyle(
-                            fontSize: SizeConfig.safeBlockHorizontal * 4.8),
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      CustomTextField(
-                        maxLines: 1,
-                        controller: _streetController,
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      Text(
-                        'Block',
-                        style: TextStyle(
-                            fontSize: SizeConfig.safeBlockHorizontal * 4.8),
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      CustomTextField(
-                        maxLines: 1,
-                        controller: _blockController,
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      Text(
-                        'Governorate',
-                        style: TextStyle(
-                            fontSize: SizeConfig.safeBlockHorizontal * 4.8),
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      CustomTextField(
-                        maxLines: 1,
-                        controller: _govController,
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      Text(
-                        trans(context, 'delivery_notes'),
-                        style: TextStyle(
-                            fontSize: SizeConfig.safeBlockHorizontal * 4.8),
-                      ),
-                      SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-                      CustomTextField(
-                          maxLines: 6, controller: _notesController),
-                    ],
-                  )
+            widget.cart != null
+                ? widget.cart.templateId == 4
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _showMosque
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${trans(context, 'mosque')}*',
+                                      style: TextStyle(
+                                        fontSize:
+                                            SizeConfig.safeBlockHorizontal *
+                                                4.8,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          SizeConfig.blockSizeVertical * 1.5,
+                                    ),
+                                    CustomTextField(
+                                      maxLines: 1,
+                                      controller: _mosqueController,
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          SizeConfig.blockSizeVertical * 1.5,
+                                    ),
+                                  ],
+                                )
+                              : Container(),
+                          Text(
+                            '${trans(context, 'city')}*',
+                            style: TextStyle(
+                                fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                          CustomTextField(
+                            maxLines: 1,
+                            controller: _cityController,
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                          Text(
+                            '${trans(context, 'street')}*',
+                            style: TextStyle(
+                                fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                          CustomTextField(
+                            maxLines: 1,
+                            controller: _streetController,
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                          Text(
+                            '${trans(context, 'block')}*',
+                            style: TextStyle(
+                                fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                          CustomTextField(
+                            maxLines: 1,
+                            controller: _blockController,
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                          Text(
+                            '${trans(context, 'governorate')}*',
+                            style: TextStyle(
+                                fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                          CustomTextField(
+                            maxLines: 1,
+                            controller: _govController,
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                        ],
+                      )
+                    : Container()
                 : Container(),
+            Text(
+              trans(context, 'delivery_notes'),
+              style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+            ),
+            SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+            CustomTextField(maxLines: 6, controller: _notesController),
             SizedBox(height: SizeConfig.blockSizeVertical * 5),
             DefaultButton(
-              press: () => widget.category.templateId == 4
+              press: () => widget.cart.templateId == 4
                   ? _consolationCheckout()
                   : _foodCheckout(),
               text: trans(context, 'checkout'),
@@ -246,7 +306,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Cemetry',
+                      '${trans(context, 'cemetry')}*',
                       style: TextStyle(
                         fontSize: SizeConfig.safeBlockHorizontal * 4.8,
                       ),
@@ -272,14 +332,14 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
                 )
               : Container(),
           Text(
-            trans(context, 'donator_name'),
+            '${trans(context, 'donator_name')}*',
             style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
           ),
           SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
           CustomTextField(maxLines: 1, controller: _nameController),
           SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
           Text(
-            trans(context, 'phone_no'),
+            '${trans(context, 'phone_no')}*',
             style: TextStyle(fontSize: SizeConfig.safeBlockHorizontal * 4.8),
           ),
           SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
@@ -290,7 +350,18 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'City',
+                      '${trans(context, 'mosque')}*',
+                      style: TextStyle(
+                          fontSize: SizeConfig.safeBlockHorizontal * 4.8),
+                    ),
+                    SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                    CustomTextField(
+                      maxLines: 1,
+                      controller: _mosqueController,
+                    ),
+                    SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
+                    Text(
+                      '${trans(context, 'city')}*',
                       style: TextStyle(
                           fontSize: SizeConfig.safeBlockHorizontal * 4.8),
                     ),
@@ -301,7 +372,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
                     ),
                     SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
                     Text(
-                      'Street',
+                      '${trans(context, 'street')}*',
                       style: TextStyle(
                           fontSize: SizeConfig.safeBlockHorizontal * 4.8),
                     ),
@@ -309,7 +380,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
                     CustomTextField(maxLines: 1, controller: _streetController),
                     SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
                     Text(
-                      'Block',
+                      '${trans(context, 'block')}*',
                       style: TextStyle(
                           fontSize: SizeConfig.safeBlockHorizontal * 4.8),
                     ),
@@ -317,7 +388,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
                     CustomTextField(maxLines: 1, controller: _blockController),
                     SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
                     Text(
-                      'Governorate',
+                      '${trans(context, 'governorate')}*',
                       style: TextStyle(
                           fontSize: SizeConfig.safeBlockHorizontal * 4.8),
                     ),
@@ -346,98 +417,142 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
   }
 
   _mosqueCheckout() async {
-    String block = '';
-    if (_blockController.text.isNotEmpty &&
-        !_blockController.text.contains('block'))
-      block = 'Block ' + _blockController.text;
-    else
-      block = _blockController.text;
+    if (_nameController.value.text.isEmpty ||
+        _phoneController.value.text.isEmpty ||
+        _cityController.value.text.isEmpty ||
+        _streetController.value.text.isEmpty ||
+        _blockController.value.text.isEmpty ||
+        _govController.value.text.isEmpty) {
+      Fluttertoast.showToast(
+        msg: trans(context, 'please_fill_all_information'),
+      );
+    } else {
+      String block = '';
+      if (_blockController.text.isNotEmpty &&
+          !_blockController.text.contains('block'))
+        block = 'Block ' + _blockController.text;
+      else
+        block = _blockController.text;
 
-    String address = _cityController.text +
-        '\n' +
-        _streetController.text +
-        '\n' +
-        block +
-        '\n' +
-        _govController.text;
+      String address = _cityController.text +
+          '\n' +
+          _streetController.text +
+          '\n' +
+          block +
+          '\n' +
+          _govController.text;
 
-    Order order = new Order();
-    order.categoryId = widget.category.id;
-    order.mosque = _mosqueController.value.text;
-    order.donorName = _nameController.value.text;
-    order.phoneNo = _phoneController.value.text;
-    order.deliveryNotes = _notesController.value.text;
-    order.cartId = widget.cart.id;
-    order.userId = _auth.currentUser.uid.toString();
-    order.address = address;
+      Order order = new Order();
+      if (widget.cart != null) order.categoryId = widget.categoryId;
+      order.mosque = _mosqueController.value.text;
+      order.donorName = _nameController.value.text;
+      order.phoneNo = _phoneController.value.text;
+      order.deliveryNotes = _notesController.value.text;
+      if (widget.cart != null) order.cartId = widget.cart.id;
+      order.userId = _auth.currentUser.uid.toString();
+      order.address = address;
 
-    await HttpService.makeOrder(order);
+      await HttpService.makeOrder(order);
+      cartProvider.getUserCart(_auth.currentUser.uid);
+      cartProvider.getUserCartCount(_auth.currentUser.uid);
+    }
   }
 
   _cemetryCheckout() async {
-    print(_selectedCemetry);
-    Order order = new Order();
-    order.categoryId = widget.category.id;
-    order.cemetry = _selectedCemetry;
-    order.donorName = _nameController.value.text;
-    order.phoneNo = _phoneController.value.text;
-    order.deliveryNotes = _notesController.value.text;
-    order.cartId = widget.cart.id;
-    order.userId = _auth.currentUser.uid.toString();
+    if (_selectedCemetry.isEmpty ||
+        _nameController.value.text.isEmpty ||
+        _phoneController.value.text.isEmpty) {
+      Fluttertoast.showToast(
+          msg: trans(context, 'please_fill_all_information'));
+    } else {
+      Order order = new Order();
+      order.categoryId = widget.categoryId;
+      order.cemetry = _selectedCemetry;
+      order.donorName = _nameController.value.text;
+      order.phoneNo = _phoneController.value.text;
+      order.deliveryNotes = _notesController.value.text;
+      order.cartId = widget.cart.id;
+      order.userId = _auth.currentUser.uid.toString();
 
-    await HttpService.makeOrder(order);
+      await HttpService.makeOrder(order);
+      cartProvider.getUserCart(_auth.currentUser.uid);
+      cartProvider.getUserCartCount(_auth.currentUser.uid);
+    }
   }
 
   _foodCheckout() async {
-    print(_selectedCemetry);
-    Order order = new Order();
-    order.categoryId = widget.category.id;
-    order.by = _selectedOrganisation;
-    order.donorName = _nameController.value.text;
-    order.phoneNo = _phoneController.value.text;
-    order.deliveryNotes = _notesController.value.text;
-    order.cartId = widget.cart.id;
-    order.userId = _auth.currentUser.uid.toString();
+    if (_selectedOrganisation == null ||
+        _nameController.value.text.isEmpty ||
+        _phoneController.value.text.isEmpty) {
+      Fluttertoast.showToast(
+        msg: trans(context, 'please_fill_all_information'),
+      );
+    } else {
+      Order order = new Order();
+      order.categoryId = widget.cart.id;
+      order.by = _selectedOrganisation;
+      order.donorName = _nameController.value.text;
+      order.phoneNo = _phoneController.value.text;
+      order.deliveryNotes = _notesController.value.text;
+      order.cartId = widget.cart.id;
+      order.userId = _auth.currentUser.uid.toString();
 
-    await HttpService.makeOrder(order);
+      await HttpService.makeOrder(order);
+      cartProvider.getUserCart(_auth.currentUser.uid);
+      cartProvider.getUserCartCount(_auth.currentUser.uid);
+    }
   }
 
   _consolationCheckout() async {
-    String block = '';
-    if (_blockController.text.isNotEmpty &&
-        !_blockController.text.contains('block'))
-      block = 'Block ' + _blockController.text;
-    else
-      block = _blockController.text;
+    if (_nameController.value.text.isEmpty ||
+        _phoneController.value.text.isEmpty ||
+        _cityController.value.text.isEmpty ||
+        _streetController.value.text.isEmpty ||
+        _blockController.value.text.isEmpty ||
+        _govController.value.text.isEmpty) {
+      Fluttertoast.showToast(
+        msg: trans(context, 'please_fill_all_information'),
+      );
+    } else {
+      String block = '';
+      if (_blockController.text.isNotEmpty &&
+          !_blockController.text.contains('block'))
+        block = 'Block ' + _blockController.text;
+      else
+        block = _blockController.text;
 
-    String address = _cityController.text +
-        '\n' +
-        _streetController.text +
-        '\n' +
-        block +
-        '\n' +
-        _govController.text;
+      String address = _cityController.text +
+          '\n' +
+          _streetController.text +
+          '\n' +
+          block +
+          '\n' +
+          _govController.text;
 
-    Order order = new Order();
-    order.categoryId = widget.category.id;
-    order.donorName = _nameController.value.text;
-    order.phoneNo = _phoneController.value.text;
-    order.deliveryNotes = _notesController.value.text;
-    order.cartId = widget.cart.id;
-    order.userId = _auth.currentUser.uid.toString();
-    order.address = address;
-    if (_mosqueController.text.isNotEmpty)
-      order.mosque = _mosqueController.text;
+      Order order = new Order();
+      if (widget.cart != null)
+        order.categoryId = widget.cart.id;
+      else
+        order.categoryId = widget.categoryId;
+      order.donorName = _nameController.value.text;
+      order.phoneNo = _phoneController.value.text;
+      order.deliveryNotes = _notesController.value.text;
+      order.cartId = widget.cart.id;
+      order.userId = _auth.currentUser.uid.toString();
+      order.address = address;
+      if (_mosqueController.text.isNotEmpty)
+        order.mosque = _mosqueController.text;
 
-    await HttpService.makeOrder(order);
+      await HttpService.makeOrder(order);
+      cartProvider.getUserCart(_auth.currentUser.uid);
+      cartProvider.getUserCartCount(_auth.currentUser.uid);
+    }
   }
 
   _getOrganisations() async {
     await HttpService.getOrganisations().then((o) {
       setState(() {
         organisations = o;
-        organisations.insert(0, Organisation(id: 0, name: 'Administration'));
-        print(organisations);
       });
     });
   }
@@ -446,17 +561,19 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category.name),
+        title: widget.cart != null ? Text(widget.cart.name) : Text(''),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        child: widget.category.templateId == 1
-            ? _buildAddressAndGeolocation()
-            : widget.category.templateId == 2 || widget.category.templateId == 5
-                ? _buildInformationFields()
-                : widget.category.templateId == 4
-                    ? _buildAddressAndGeolocation()
-                    : Container(),
+        child: widget.cart != null
+            ? widget.cart.templateId == 1
+                ? _buildAddressAndGeolocation()
+                : widget.cart.templateId == 2 || widget.cart.templateId == 5
+                    ? _buildInformationFields()
+                    : widget.cart.templateId == 4
+                        ? _buildAddressAndGeolocation()
+                        : Container()
+            : _buildInformationFields(),
       ),
     );
   }
@@ -541,7 +658,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
     await _getLocation(
       result.geometry.location.lat,
       result.geometry.location.lng,
-      mosque: result.formattedAddress,
+      mosque: result.name,
     );
   }
 
@@ -563,12 +680,13 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
                   ? Column(
                       children: [
                         Text(
-                          selectedPlace.formattedAddress,
+                          selectedPlace.name,
+                          textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 18),
                         ),
                         SizedBox(height: 10),
                         RaisedButton(
-                          child: Text('Select'),
+                          child: Text(trans(context, 'select')),
                           onPressed: () {
                             Navigator.pop(context, selectedPlace);
                           },

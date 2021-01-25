@@ -126,12 +126,13 @@ class _TabsScreenState extends State<TabsScreen> {
                   ? Column(
                       children: [
                         Text(
-                          selectedPlace.formattedAddress,
+                          selectedPlace.name,
+                          textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 18),
                         ),
                         SizedBox(height: 10),
                         RaisedButton(
-                          child: Text('Select'),
+                          child: Text(trans(context, 'select')),
                           onPressed: () {
                             Navigator.push(
                               context,

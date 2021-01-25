@@ -42,7 +42,7 @@ class CategoryListItem extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => CheckoutScreen(
                       subcategory: subcategory,
-                      category: category,
+                      // category: category,
                       categoryId: categoryId,
                     ),
                   ),

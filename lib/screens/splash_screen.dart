@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/main.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
+import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/screens/languages/languages_screen.dart';
 import 'package:mosques_donation_app/screens/tab_screens.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
@@ -21,39 +23,48 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  FirebaseAuth _auth = FirebaseAuth.instance;
   AppProvider appProvider;
+  CartProvider cartProvider;
 
   @override
   void initState() {
     super.initState();
     appProvider = Provider.of<AppProvider>(context, listen: false);
+    cartProvider = Provider.of<CartProvider>(context, listen: false);
 
-    Future.delayed(Duration(seconds: 5), () {
-      _retrieveData();
-    });
+    _retrieveData();
   }
 
   _retrieveData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userId = _auth.currentUser.uid;
 
     appProvider.setCategories(await HttpService.getCategories());
     appProvider.setBanners(await HttpService.getBanners());
+    cartProvider.setCartCount(await HttpService.getCartCount(userId));
 
-    appProvider.setCurrentLanguage('English');
-    MyApp.setLocale(context, Locale('en', 'US'), 'English');
+    String language = prefs.getString('language');
+    if (language == 'English') {
+      appProvider.setCurrentLanguage('English');
+      MyApp.setLocale(context, Locale('en', 'US'), 'English');
+    } else if (language == 'Arabic') {
+      appProvider.setCurrentLanguage('Arabic');
+      MyApp.setLocale(context, Locale('ar', 'AR'), 'Arabic');
+    }
+    print('Retrieved Saved Language');
 
-    print(prefs.getBool('authenticated'));
-    // bool autenticated = prefs.getBool('authenticated') != null
-    //     ? prefs.getBool('authenticated')
-    //     : false;
+    bool autenticated = prefs.getBool('authenticated') != null
+        ? prefs.getBool('authenticated')
+        : false;
 
     bool firstTime = prefs.getBool('first_time');
     if (firstTime == null) {
       firebaseCloudMessagingListeners();
       prefs.setBool('first_time', false);
+      print('Saved Device Token');
     }
 
-    bool autenticated = true;
     if (autenticated) {
       Navigator.push(
         context,
