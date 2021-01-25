@@ -167,5 +167,9 @@
   "start_looking_for_products": "Start Looking for Products!",
   "please_write_something": "Please write something before submitting!",
   "read_more": "read more",
-  "mosque": "Mosque Name"
+  "mosque": "Mosque Name",
+  "product_out_of_stock": "This product is out of stock",
+  "out_of_stock": "out of stock",
+  "payment_method": "Payment Method",
+  "select_your_payment_method": "Select your payment method"
 }

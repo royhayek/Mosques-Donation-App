@@ -170,5 +170,9 @@
   "start_looking_for_products": "ابدأ البحث عن المنتجات!",
   "please_write_something": "الرجاء كتابة شيء قبل التقديم!",
   "read_more": "قراءة المزيد",
-  "mosque": "اسم المسجد"
+  "mosque": "اسم المسجد",
+  "out_of_stock": "غير متوفر",
+  "product_out_of_stock": "المنتج غير متوفر حاليا",
+  "payment_method": "طريقة الدفع",
+  "select_your_payment_method": "إختر طريقة الدفع"
 }
