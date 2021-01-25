@@ -12,6 +12,7 @@ import 'package:mosques_donation_app/models/order.dart';
 import 'package:mosques_donation_app/models/organisation.dart';
 import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/screens/checkout/widgets/custom_text_field.dart';
+import 'package:mosques_donation_app/screens/payment/payment_screen.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
@@ -280,9 +281,11 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
             CustomTextField(maxLines: 6, controller: _notesController),
             SizedBox(height: SizeConfig.blockSizeVertical * 5),
             DefaultButton(
-              press: () => widget.cart.templateId == 4
-                  ? _consolationCheckout()
-                  : _foodCheckout(),
+              press: () {
+                widget.cart.templateId == 4
+                    ? _consolationCheckout()
+                    : _foodCheckout();
+              },
               text: trans(context, 'checkout'),
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 5),
@@ -406,13 +409,21 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
           CustomTextField(maxLines: 6, controller: _notesController),
           SizedBox(height: SizeConfig.blockSizeVertical * 5),
           DefaultButton(
-            press: () =>
-                widget.mosque != null ? _mosqueCheckout() : _cemetryCheckout(),
+            press: () {
+              widget.mosque != null ? _mosqueCheckout() : _cemetryCheckout();
+            },
             text: trans(context, 'checkout'),
           ),
           SizedBox(height: SizeConfig.blockSizeVertical * 5),
         ],
       ),
+    );
+  }
+
+  _navigateToPaymentMethod() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PaymentScreen(cart: widget.cart)),
     );
   }
 
@@ -455,6 +466,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
       await HttpService.makeOrder(order);
       cartProvider.getUserCart(_auth.currentUser.uid);
       cartProvider.getUserCartCount(_auth.currentUser.uid);
+      _navigateToPaymentMethod();
     }
   }
 
@@ -477,6 +489,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
       await HttpService.makeOrder(order);
       cartProvider.getUserCart(_auth.currentUser.uid);
       cartProvider.getUserCartCount(_auth.currentUser.uid);
+      _navigateToPaymentMethod();
     }
   }
 
@@ -500,6 +513,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
       await HttpService.makeOrder(order);
       cartProvider.getUserCart(_auth.currentUser.uid);
       cartProvider.getUserCartCount(_auth.currentUser.uid);
+      _navigateToPaymentMethod();
     }
   }
 
@@ -546,6 +560,7 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
       await HttpService.makeOrder(order);
       cartProvider.getUserCart(_auth.currentUser.uid);
       cartProvider.getUserCartCount(_auth.currentUser.uid);
+      _navigateToPaymentMethod();
     }
   }
 

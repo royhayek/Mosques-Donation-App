@@ -105,18 +105,24 @@ void modalBottomSheetAttributes(BuildContext modalcontext,
                 ),
           ),
           Text(
-            (findProductVariation() != null
-                ? findProductVariation().stockStatus != "instock"
-                    ? "Out of stock"
+            (tmpAttributeObj.isNotEmpty
+                ? tmpAttributeObj['stockStatus'] != 1
+                    ? trans(modalcontext, 'out_of_stock')
                     : ""
                 : ""),
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Theme.of(modalcontext).primaryColor),
           ),
           DefaultButton(
             text: trans(modalcontext, 'continue'),
             press: () {
-              print(productAttributes.length);
-              print(tmpAttributeObj.values.length);
+              if (tmpAttributeObj.isNotEmpty &&
+                  tmpAttributeObj['stockStatus'] != 1) {
+                Fluttertoast.showToast(
+                  msg: trans(modalcontext, 'product_out_of_stock'),
+                );
+                return;
+              }
+
               if (tmpAttributeObj['value'] == null) {
                 Fluttertoast.showToast(
                   msg: trans(modalcontext, 'please_select_an_option_first'),
@@ -130,8 +136,6 @@ void modalBottomSheetAttributes(BuildContext modalcontext,
                   return;
                 }
               }
-
-              print('variations $tmpAttributeObj');
 
               addProductToCart(
                 modalcontext,
@@ -172,7 +176,6 @@ _showDescriptionDialog(BuildContext dialogcontext, String description) {
 
 void modalBottom(BuildContext modalcontext,
     {double height, String title, Widget bodyWidget, Widget extraWidget}) {
-  print(height);
   showModalBottomSheet(
     context: modalcontext,
     backgroundColor: Colors.transparent,
@@ -258,13 +261,13 @@ void modalBottomSheetOptionsForAttribute(
             tmpAttributeObj = {
               "productId": productAttributes[index].productId,
               "attributeId": productAttributes[index].id,
+              "stockStatus": productAttributes[index].stockStatus,
               "name": productAttributes[index].name,
               "value": productAttributes[index].salePrice != null &&
                       productAttributes[index].salePrice != 0
                   ? productAttributes[index].salePrice
                   : productAttributes[index].price
             };
-            print(tmpAttributeObj);
             Navigator.pop(modalcontext);
             Navigator.pop(modalcontext);
             modalBottomSheetAttributes(

@@ -74,7 +74,7 @@ class _SubCategoryListItemState extends State<SubCategoryListItem> {
           ? isEnglish(context)
               ? SizeConfig.blockSizeVertical * 50
               : SizeConfig.blockSizeVertical * 52
-          : SizeConfig.blockSizeVertical * 30,
+          : SizeConfig.blockSizeVertical * 35,
       title: description != null
           ? trans(context, 'description')
           : trans(context, 'select_quantity'),
@@ -138,10 +138,28 @@ class _SubCategoryListItemState extends State<SubCategoryListItem> {
             ),
           ),
           SizedBox(height: SizeConfig.blockSizeVertical * 2),
+          widget.product.productType == 'simple' &&
+                  widget.product.stockStatus != 1
+              ? Column(
+                  children: [
+                    Text(
+                      trans(context, 'out_of_stock'),
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
+                    SizedBox(height: SizeConfig.blockSizeVertical),
+                  ],
+                )
+              : Container(),
           DefaultButton(
             text: trans(context, 'add_to_cart'),
             press: () async {
-              print(selectedQuantity);
+              if (widget.product.productType == 'simple' &&
+                  widget.product.stockStatus != 1) {
+                Fluttertoast.showToast(
+                  msg: trans(context, 'product_out_of_stock'),
+                );
+                return;
+              }
               await HttpService.addToCart(
                 ctx,
                 _auth.currentUser.uid,

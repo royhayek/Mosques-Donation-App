@@ -50,6 +50,7 @@ dependencies:
   location: ^3.2.1
   geocoder: ^0.2.1
   flutter_number_picker: ^0.0.8
+  myfatoorah_flutter: ^1.0.12
 
 dev_dependencies:
   flutter_test:
