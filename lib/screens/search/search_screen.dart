@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/product.dart';
 import 'package:mosques_donation_app/screens/checkout/widgets/custom_text_field.dart';
-import 'package:mosques_donation_app/screens/subcategories/widgets/subcategory_list_item.dart';
+import 'package:mosques_donation_app/widgets/product_list_item.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
@@ -95,7 +95,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           mainAxisSpacing: 4,
                         ),
                         itemCount: _searchedProducts.length,
-                        itemBuilder: (context, index) => SubCategoryListItem(
+                        itemBuilder: (context, index) => ProductListItem(
                           product: _searchedProducts[index],
                         ),
                       ),

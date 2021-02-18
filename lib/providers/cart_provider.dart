@@ -26,7 +26,7 @@ class CartProvider with ChangeNotifier {
           );
   }
 
-  Future getUserCart(String userId) async {
+  Future getUserCart(int userId) async {
     cart.clear();
     await HttpService.getUserCart(userId).then((c) {
       c.forEach((ca) {
@@ -39,7 +39,7 @@ class CartProvider with ChangeNotifier {
     });
   }
 
-  Future getUserCartCount(String userId) async {
+  Future getUserCartCount(int userId) async {
     await HttpService.getCartCount(userId).then((count) {
       this.cartCount = count;
       print(count);

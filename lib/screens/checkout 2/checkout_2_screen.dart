@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoder/geocoder.dart';
@@ -7,9 +6,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:google_maps_webservice/places.dart' as p;
 import 'package:location/location.dart';
+import 'package:mosques_donation_app/database/user_info_db.dart';
 import 'package:mosques_donation_app/models/cart.dart';
 import 'package:mosques_donation_app/models/order.dart';
 import 'package:mosques_donation_app/models/organisation.dart';
+import 'package:mosques_donation_app/providers/app_provider.dart';
+import 'package:mosques_donation_app/providers/auth_provider.dart';
 import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/screens/checkout/widgets/custom_text_field.dart';
 import 'package:mosques_donation_app/screens/payment/payment_screen.dart';
@@ -27,10 +29,18 @@ class Checkout2Screen extends StatefulWidget {
   static String routeName = "checkout_2_screen";
 
   final int categoryId;
+  final int subcategoryId;
   final PickResult mosque;
   final Cart cart;
+  final bool mosqueCare;
 
-  const Checkout2Screen({Key key, this.mosque, this.cart, this.categoryId})
+  const Checkout2Screen(
+      {Key key,
+      this.mosque,
+      this.cart,
+      this.categoryId,
+      this.subcategoryId,
+      this.mosqueCare = false})
       : super(key: key);
 
   @override
@@ -49,8 +59,9 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
   TextEditingController _notesController = TextEditingController();
   TextEditingController _mosqueController = TextEditingController();
 
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  AuthProvider authProvider;
   CartProvider cartProvider;
+  AppProvider appProvider;
 
   static final kInitialPosition = LatLng(29.378586, 47.990341);
 
@@ -65,12 +76,16 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
     'المقبرة الجعفرية',
   ];
   bool _showMosque = true;
+  String coordination;
+  var db = new UserDatabaseHelper();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     cartProvider = Provider.of<CartProvider>(context, listen: false);
+    appProvider = Provider.of<AppProvider>(context, listen: false);
 
     if (widget.cart != null) {
       switch (widget.cart.templateId) {
@@ -101,6 +116,9 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
         );
       }
     }
+
+    _nameController.text = authProvider.user.name;
+    _phoneController.text = authProvider.user.phone;
   }
 
   _buildAddressAndGeolocation() {
@@ -279,7 +297,14 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
             CustomTextField(maxLines: 6, controller: _notesController),
-            SizedBox(height: SizeConfig.blockSizeVertical * 5),
+            SizedBox(height: SizeConfig.blockSizeVertical * 4),
+            widget.cart.templateId == 4
+                ? Text(
+                    '${trans(context, 'delivery_fee')}: ${appProvider.settings.consolationDeliveryFee} ${trans(context, 'kd')}',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
+                : Container(),
+            SizedBox(height: SizeConfig.blockSizeVertical * 2),
             DefaultButton(
               press: () {
                 widget.cart.templateId == 4
@@ -407,12 +432,32 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
           ),
           SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
           CustomTextField(maxLines: 6, controller: _notesController),
-          SizedBox(height: SizeConfig.blockSizeVertical * 5),
+          SizedBox(height: SizeConfig.blockSizeVertical * 4),
+          !widget.mosqueCare
+              ? widget.mosque != null
+                  ? Text(
+                      '${trans(context, 'delivery_fee')}: ${appProvider.settings.mosqueDeliveryFee} ${trans(context, 'kd')}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : Text(
+                      '${trans(context, 'delivery_fee')}: ${appProvider.settings.cemetryDeliveryFee} ${trans(context, 'kd')}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+              : Container(),
+          SizedBox(height: SizeConfig.blockSizeVertical * 2),
           DefaultButton(
             press: () {
-              widget.mosque != null ? _mosqueCheckout() : _cemetryCheckout();
+              if (widget.mosqueCare && widget.subcategoryId != null) {
+                _customDonationCheckout();
+              } else if (widget.mosque != null) {
+                _mosqueCheckout();
+              } else {
+                _cemetryCheckout();
+              }
             },
-            text: trans(context, 'checkout'),
+            text: !widget.mosqueCare
+                ? trans(context, 'checkout')
+                : trans(context, 'submit'),
           ),
           SizedBox(height: SizeConfig.blockSizeVertical * 5),
         ],
@@ -420,11 +465,58 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
     );
   }
 
-  _navigateToPaymentMethod() {
+  _navigateToPaymentMethod(Order order) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PaymentScreen(cart: widget.cart)),
+      MaterialPageRoute(
+        builder: (context) => PaymentScreen(cart: widget.cart, order: order),
+      ),
     );
+  }
+
+  _customDonationCheckout() async {
+    if (_nameController.value.text.isEmpty ||
+        _phoneController.value.text.isEmpty ||
+        _cityController.value.text.isEmpty ||
+        _streetController.value.text.isEmpty ||
+        _govController.value.text.isEmpty) {
+      Fluttertoast.showToast(
+        msg: trans(context, 'please_fill_all_information'),
+      );
+    } else {
+      String block = '';
+      if (_blockController.text.isNotEmpty &&
+          !_blockController.text.contains('block'))
+        block = 'Block ' + _blockController.text;
+      else
+        block = _blockController.text;
+
+      String address = _cityController.text +
+          '\n' +
+          _streetController.text +
+          '\n' +
+          block +
+          '\n' +
+          _govController.text;
+
+      Order order = new Order();
+      order.categoryId = widget.categoryId;
+      if (widget.subcategoryId != null)
+        order.subcategoryId = widget.subcategoryId;
+      order.mosque = _mosqueController.value.text;
+      order.donorName = _nameController.value.text;
+      order.phoneNo = _phoneController.value.text;
+      order.deliveryNotes = _notesController.value.text;
+      order.userId = authProvider.user.id.toString();
+      order.address = address;
+      order.city = _cityController.value.text;
+      order.coordination = widget.mosque.geometry.location.toString();
+      print(widget.mosque.geometry.location.toString());
+
+      await HttpService.makeOrder(context, order);
+
+      await db.saveUserInfo(_nameController.text, _phoneController.text);
+    }
   }
 
   _mosqueCheckout() async {
@@ -432,7 +524,6 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
         _phoneController.value.text.isEmpty ||
         _cityController.value.text.isEmpty ||
         _streetController.value.text.isEmpty ||
-        _blockController.value.text.isEmpty ||
         _govController.value.text.isEmpty) {
       Fluttertoast.showToast(
         msg: trans(context, 'please_fill_all_information'),
@@ -459,19 +550,27 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
       order.donorName = _nameController.value.text;
       order.phoneNo = _phoneController.value.text;
       order.deliveryNotes = _notesController.value.text;
+      order.totalPrice = widget.cart.total +
+          appProvider.settings.serviceFee +
+          appProvider.settings.mosqueDeliveryFee;
+      order.serviceFee = appProvider.settings.serviceFee;
+      order.deliveryFee = appProvider.settings.mosqueDeliveryFee;
+      order.totalProducts = widget.cart.count;
       if (widget.cart != null) order.cartId = widget.cart.id;
-      order.userId = _auth.currentUser.uid.toString();
+      order.userId = authProvider.user.id.toString();
       order.address = address;
+      order.city = _cityController.value.text;
+      order.coordination = widget.mosque.geometry.location.toString();
+      print(widget.mosque.geometry.location.toString());
 
-      await HttpService.makeOrder(order);
-      cartProvider.getUserCart(_auth.currentUser.uid);
-      cartProvider.getUserCartCount(_auth.currentUser.uid);
-      _navigateToPaymentMethod();
+      await db.saveUserInfo(_nameController.text, _phoneController.text);
+
+      _navigateToPaymentMethod(order);
     }
   }
 
   _cemetryCheckout() async {
-    if (_selectedCemetry.isEmpty ||
+    if (_selectedCemetry == null ||
         _nameController.value.text.isEmpty ||
         _phoneController.value.text.isEmpty) {
       Fluttertoast.showToast(
@@ -483,13 +582,17 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
       order.donorName = _nameController.value.text;
       order.phoneNo = _phoneController.value.text;
       order.deliveryNotes = _notesController.value.text;
+      order.totalPrice = widget.cart.total +
+          appProvider.settings.serviceFee +
+          appProvider.settings.cemetryDeliveryFee;
+      order.serviceFee = appProvider.settings.serviceFee;
+      order.deliveryFee = appProvider.settings.cemetryDeliveryFee;
+      order.totalProducts = widget.cart.count;
       order.cartId = widget.cart.id;
-      order.userId = _auth.currentUser.uid.toString();
+      order.userId = authProvider.user.id.toString();
 
-      await HttpService.makeOrder(order);
-      cartProvider.getUserCart(_auth.currentUser.uid);
-      cartProvider.getUserCartCount(_auth.currentUser.uid);
-      _navigateToPaymentMethod();
+      await db.saveUserInfo(_nameController.text, _phoneController.text);
+      _navigateToPaymentMethod(order);
     }
   }
 
@@ -507,13 +610,17 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
       order.donorName = _nameController.value.text;
       order.phoneNo = _phoneController.value.text;
       order.deliveryNotes = _notesController.value.text;
+      order.totalPrice =
+          widget.cart.total + appProvider.settings.serviceFee + 0;
+      order.serviceFee = appProvider.settings.serviceFee;
+      order.deliveryFee = 0;
+      order.totalProducts = widget.cart.count;
       order.cartId = widget.cart.id;
-      order.userId = _auth.currentUser.uid.toString();
+      order.userId = authProvider.user.id.toString();
 
-      await HttpService.makeOrder(order);
-      cartProvider.getUserCart(_auth.currentUser.uid);
-      cartProvider.getUserCartCount(_auth.currentUser.uid);
-      _navigateToPaymentMethod();
+      await db.saveUserInfo(_nameController.text, _phoneController.text);
+
+      _navigateToPaymentMethod(order);
     }
   }
 
@@ -522,7 +629,6 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
         _phoneController.value.text.isEmpty ||
         _cityController.value.text.isEmpty ||
         _streetController.value.text.isEmpty ||
-        _blockController.value.text.isEmpty ||
         _govController.value.text.isEmpty) {
       Fluttertoast.showToast(
         msg: trans(context, 'please_fill_all_information'),
@@ -551,16 +657,21 @@ class _Checkout2ScreenState extends State<Checkout2Screen> {
       order.donorName = _nameController.value.text;
       order.phoneNo = _phoneController.value.text;
       order.deliveryNotes = _notesController.value.text;
+      order.totalPrice = widget.cart.total +
+          appProvider.settings.serviceFee +
+          appProvider.settings.consolationDeliveryFee;
+      order.serviceFee = appProvider.settings.serviceFee;
+      order.deliveryFee = appProvider.settings.consolationDeliveryFee;
+      order.totalProducts = widget.cart.count;
       order.cartId = widget.cart.id;
-      order.userId = _auth.currentUser.uid.toString();
+      order.userId = authProvider.user.id.toString();
+      order.city = _cityController.value.text;
       order.address = address;
       if (_mosqueController.text.isNotEmpty)
         order.mosque = _mosqueController.text;
+      order.coordination = widget.mosque.geometry.location.toString();
 
-      await HttpService.makeOrder(order);
-      cartProvider.getUserCart(_auth.currentUser.uid);
-      cartProvider.getUserCartCount(_auth.currentUser.uid);
-      _navigateToPaymentMethod();
+      _navigateToPaymentMethod(order);
     }
   }
 

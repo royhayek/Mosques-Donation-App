@@ -2,6 +2,7 @@ class ProductAttributes {
   final int id;
   final int productId;
   final String name;
+  final num buyingPrice;
   final num price;
   final num salePrice;
   final int quantityInStock;
@@ -13,6 +14,7 @@ class ProductAttributes {
       {this.id,
       this.productId,
       this.name,
+      this.buyingPrice,
       this.price,
       this.salePrice,
       this.quantityInStock,
@@ -25,6 +27,7 @@ class ProductAttributes {
       id: json['id'],
       productId: json['productId'],
       name: json['name'],
+      buyingPrice: json['buyingPrice'],
       price: json['price'],
       salePrice: json['salePrice'],
       quantityInStock: json['quantityInStock'],

@@ -7,7 +7,7 @@ import 'package:google_place/google_place.dart';
 import 'package:mosques_donation_app/models/category.dart';
 import 'package:mosques_donation_app/models/product.dart';
 import 'package:mosques_donation_app/models/subcategory.dart';
-import 'package:mosques_donation_app/screens/subcategories/widgets/subcategory_list_item.dart';
+import 'package:mosques_donation_app/widgets/product_list_item.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
@@ -232,7 +232,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                           ),
                           shrinkWrap: true,
                           itemCount: products.length,
-                          itemBuilder: (context, index) => SubCategoryListItem(
+                          itemBuilder: (context, index) => ProductListItem(
                             context: context,
                             product: products[index],
                             categoryId: widget.category != null

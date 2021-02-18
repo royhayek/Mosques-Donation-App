@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/product.dart';
-import 'package:mosques_donation_app/screens/subcategories/widgets/subcategory_list_item.dart';
+import 'package:mosques_donation_app/widgets/product_list_item.dart';
 import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
@@ -53,7 +53,7 @@ class _TopTenProductsListScreenState extends State<TopTenProductsListScreen> {
                     ),
                     itemCount: _products.length,
                     itemBuilder: (context, index) {
-                      return SubCategoryListItem(product: _products[index]);
+                      return ProductListItem(product: _products[index]);
                     },
                   )
                 : Center(

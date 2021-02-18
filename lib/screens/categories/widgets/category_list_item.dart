@@ -19,14 +19,14 @@ class CategoryListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => category != null
+      onTap: () => category.hasSubcategories == 1
           ? Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => SubCategoriesScreen(category: category),
               ),
             )
-          : subcategory.showProductsList == 1
+          : category.showProductsList == 1
               ? Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -44,6 +44,7 @@ class CategoryListItem extends StatelessWidget {
                       subcategory: subcategory,
                       // category: category,
                       categoryId: categoryId,
+                      category: category,
                     ),
                   ),
                 ),

@@ -3,7 +3,7 @@ import 'package:mosques_donation_app/main.dart';
 import 'package:mosques_donation_app/models/language.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
 import 'package:mosques_donation_app/screens/languages/widgets/languages_list_item.dart';
-import 'package:mosques_donation_app/screens/signup/signup_screen.dart';
+import 'package:mosques_donation_app/screens/signin/signin_screen.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
@@ -35,9 +35,13 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
   void initState() {
     super.initState();
     appProvider = Provider.of<AppProvider>(context, listen: false);
-    _selectedLanguage = _languages.firstWhere(
-      (l) => l.name == appProvider.getLanguage(),
-    );
+
+    if (appProvider.getLanguage() != null)
+      _selectedLanguage = _languages.firstWhere(
+        (l) => l.name == appProvider.getLanguage(),
+      );
+    else
+      _selectedLanguage = _languages[0];
   }
 
   _changeLanguage(String language) async {
@@ -116,8 +120,15 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
                       horizontal: SizeConfig.blockSizeHorizontal * 6,
                     ),
                     child: DefaultButton(
-                      press: () {
-                        Navigator.pushNamed(context, SignUpScreen.routeName);
+                      press: () async {
+                        if (_selectedLanguage != null) {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.setString('language', 'English');
+                          Navigator.pushNamed(context, SignInScreen.routeName);
+                        } else {
+                          Navigator.pushNamed(context, SignInScreen.routeName);
+                        }
                       },
                       text: trans(context, 'next'),
                     ),

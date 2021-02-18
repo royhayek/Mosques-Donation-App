@@ -2,6 +2,7 @@ class Subcategory {
   final int id;
   final String name;
   final String image;
+  final int categoryId;
   final int showProductsList;
   final int showCustomField;
   final int status;
@@ -13,6 +14,7 @@ class Subcategory {
     this.id,
     this.name,
     this.image,
+    this.categoryId,
     this.showProductsList,
     this.showCustomField,
     this.status,
@@ -26,6 +28,7 @@ class Subcategory {
       id: json['id'],
       name: json['name'],
       image: json['image'],
+      categoryId: json['categoryId'],
       showProductsList: json['showProductsList'],
       showCustomField: json['showCustomField'],
       status: json['status'],

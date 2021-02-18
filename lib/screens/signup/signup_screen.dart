@@ -1,15 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mosques_donation_app/screens/signup/widgets/countdown.dart';
-import 'package:mosques_donation_app/screens/signup/widgets/phone_text_field.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mosques_donation_app/widgets/custom_text_field.dart';
+import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
-import 'package:mosques_donation_app/widgets/no_account_text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms_autofill/sms_autofill.dart';
-
-import '../tab_screens.dart';
 
 class SignUpScreen extends StatefulWidget {
   static String routeName = "/sign_up_screen";
@@ -20,131 +16,33 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen>
     with TickerProviderStateMixin {
-  TextEditingController countryCodeController = TextEditingController();
-  TextEditingController phoneNoController = TextEditingController();
-  TextEditingController codeController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  bool showOtpScreen = false;
-  bool showCountdown = false;
-  String verificationId;
-  String status;
-  String _code;
-
-  int counter = 0;
-  AnimationController _controller;
-  int levelClock = 120;
-
-  // void _incrementCounter() {
-  //   setState(() {
-  //     counter++;
-  //   });
-  // }
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-        vsync: this, duration: Duration(seconds: levelClock));
-  }
-
-  void startCountdown() {
-    _controller.forward();
-  }
-
-  Future loginUser(String phone, BuildContext context) async {
-    await SmsAutoFill().listenForCode;
-
-    setState(() {
-      showOtpScreen = true;
-    });
-    _auth.verifyPhoneNumber(
-      phoneNumber: phone,
-      timeout: Duration(seconds: 60),
-      verificationCompleted: (AuthCredential credential) async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        UserCredential result = await _auth.signInWithCredential(credential);
-        print('token ${credential.token}');
-        print('providerId ${credential.providerId}');
-        print('signInMethod ${credential.signInMethod}');
-
-        User user = result.user;
-
-        if (user != null) {
-          await prefs.setBool('authenticated', true);
-          Navigator.pushReplacementNamed(context, TabsScreen.routeName);
-        } else {
-          print('Error');
-        }
-
-        // This callback is only called when verification is done automatically
-      },
-      verificationFailed: (FirebaseAuthException authException) {
-        setState(() {
-          status = '${authException.message}';
-
-          print("Error message: " + status);
-          if (authException.message.contains('not authorized'))
-            status = 'Something has gone wrong, please try later';
-          else if (authException.message.contains('Network'))
-            status = 'Please check your internet connection and try again';
-          else
-            status = 'Something has gone wrong, please try later';
-        });
-      },
-      codeSent: (String id, [int forceResendingToken]) {
-        print('id $id');
-        print('forceResendingToken $forceResendingToken');
-
-        setState(() {
-          showOtpScreen = true;
-          verificationId = id;
-        });
-      },
-      codeAutoRetrievalTimeout: (String id) async {
-        verificationId = id;
-        setState(() {
-          print('Code sent to $phone');
-          status = "\nEnter the code sent to " + phone;
-        });
-      },
-    );
-  }
-
-  verifyOTPCode() async {
-    print('we are here');
-    setState(() {
-      showCountdown = true;
-    });
-
-    startCountdown();
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    final code = codeController.text.trim();
-    print(code);
-    AuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: code,
-    );
-    print(credential);
-
-    UserCredential result = await _auth.signInWithCredential(credential);
-
-    User user = result.user;
-    print(user);
-
-    if (user != null) {
-      print('we are here');
-      await prefs.setBool('authenticated', true);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TabsScreen(),
-        ),
-      );
+  _signUp(BuildContext context) async {
+    if (_nameController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      Fluttertoast.showToast(
+          msg: trans(context, 'please_fill_all_information'));
+      return;
     } else {
-      print('Error');
+      setState(() {
+        _isLoading = true;
+      });
+
+      await HttpService.registerUser(
+        context,
+        _nameController.text,
+        _phoneController.text,
+        _passwordController.text,
+      ).then((user) => user != null ? Navigator.pop(context) : null);
+
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -171,9 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Text(
-                    !showOtpScreen
-                        ? trans(context, 'sign_up')
-                        : trans(context, 'otp_verification'),
+                    trans(context, 'sign_up'),
                     style: TextStyle(
                       fontSize: SizeConfig.safeBlockHorizontal * 8,
                       fontWeight: FontWeight.bold,
@@ -181,9 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                   ),
                   SizedBox(height: SizeConfig.blockSizeVertical * 3),
                   Text(
-                    !showOtpScreen
-                        ? trans(context, 'please_enter_a_mobile_number')
-                        : trans(context, 'please_enter_the_otp_code'),
+                    trans(context, 'please_enter_your_information_to_signup'),
                     style: TextStyle(
                       color: Colors.black54,
                       fontSize: SizeConfig.safeBlockHorizontal * 4.5,
@@ -195,7 +89,7 @@ class _SignUpScreenState extends State<SignUpScreen>
               SizedBox(height: SizeConfig.blockSizeVertical * 9),
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: SizeConfig.blockSizeHorizontal * 3,
+                  horizontal: SizeConfig.blockSizeHorizontal * 2,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -206,35 +100,31 @@ class _SignUpScreenState extends State<SignUpScreen>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        !showOtpScreen
-                            ? buildPhoneTextField(context)
-                            : buildOTPRow(context),
+                        PhoneTextField(
+                          hint: trans(context, 'name'),
+                          controller: _nameController,
+                          obscure: false,
+                        ),
                         SizedBox(height: SizeConfig.blockSizeVertical * 4),
-                        !showOtpScreen
-                            ? Container()
-                            : showCountdown
-                                ? Countdown(
-                                    animation: StepTween(
-                                      begin: levelClock,
-                                      end: 0,
-                                    ).animate(_controller),
-                                  )
-                                : Container(),
-                        SizedBox(height: SizeConfig.blockSizeVertical * 5),
-                        !showOtpScreen
-                            ? Container()
-                            : AccountText(
-                                question:
-                                    '${trans(context, 'didnt_get_a_code')} ',
-                                action: trans(context, 'send_again'),
-                              ),
-                        !showOtpScreen
-                            ? Container()
-                            : SizedBox(
-                                height: SizeConfig.blockSizeVertical * 8,
-                              ),
+                        PhoneTextField(
+                          hint: trans(context, 'phone'),
+                          controller: _phoneController,
+                          obscure: false,
+                          textInputType: TextInputType.number,
+                          textInputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                        ),
+                        SizedBox(height: SizeConfig.blockSizeVertical * 4),
+                        PhoneTextField(
+                          hint: trans(context, 'password'),
+                          controller: _passwordController,
+                          obscure: true,
+                        ),
+                        SizedBox(height: SizeConfig.blockSizeVertical * 4),
                       ],
                     ),
+                    SizedBox(height: SizeConfig.blockSizeVertical * 2),
                     Padding(
                       padding: EdgeInsets.symmetric(
                           horizontal: SizeConfig.blockSizeHorizontal * 2),
@@ -242,26 +132,36 @@ class _SignUpScreenState extends State<SignUpScreen>
                         children: [
                           Align(
                             alignment: Alignment.bottomCenter,
-                            child: DefaultButton(
-                              text: !showOtpScreen
-                                  ? trans(context, 'continue')
-                                  : trans(context, 'verify'),
-                              press: () async {
-                                if (!showOtpScreen) {
-                                  if (phoneNoController.text.isNotEmpty) {
-                                    setState(() {
-                                      showOtpScreen = true;
-                                    });
-                                    loginUser(
-                                        countryCodeController.text +
-                                            phoneNoController.text,
-                                        context);
-                                  }
-                                } else {
-                                  verifyOTPCode();
-                                }
-                              },
-                            ),
+                            child: _isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).primaryColor,
+                                      ),
+                                    ),
+                                  )
+                                : DefaultButton(
+                                    text: trans(context, 'sign_up'),
+                                    press: () => _signUp(context),
+                                  ),
+                          ),
+                          SizedBox(height: SizeConfig.blockSizeVertical * 4),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(trans(context, 'already_have_an_account')),
+                              SizedBox(width: SizeConfig.blockSizeHorizontal),
+                              InkWell(
+                                onTap: () => Navigator.pop(context),
+                                child: Text(
+                                  trans(context, 'sign_in_now'),
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -276,62 +176,37 @@ class _SignUpScreenState extends State<SignUpScreen>
     );
   }
 
-  buildPhoneTextField(BuildContext context) {
-    countryCodeController.text = '+965';
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: SizeConfig.blockSizeHorizontal),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: PhoneTextField(
-              readOnly: true,
-              controller: countryCodeController,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: PhoneTextField(
-              readOnly: false,
-              controller: phoneNoController,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  buildOTPRow(BuildContext context) {
-    return PinFieldAutoFill(
-      controller: codeController,
-      decoration: UnderlineDecoration(
-        textStyle: TextStyle(fontSize: 20, color: Colors.black),
-        colorBuilder: FixedColorBuilder(Colors.black.withOpacity(0.3)),
-      ),
-      currentCode: _code,
-      onCodeSubmitted: (code) {
-        codeController.text = code;
-      },
-      onCodeChanged: (code) {
-        if (code.length == 6) {
-          FocusScope.of(context).requestFocus(FocusNode());
-        }
-      },
-    );
-    // Container(
-    //   child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-    //     Row(
-    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //       children: [
-    //         OTPDigitTextFieldBox(first: true, last: false),
-    //         OTPDigitTextFieldBox(first: false, last: false),
-    //         OTPDigitTextFieldBox(first: false, last: false),
-    //         OTPDigitTextFieldBox(first: false, last: false),
-    //         OTPDigitTextFieldBox(first: false, last: false),
-    //         OTPDigitTextFieldBox(first: false, last: true),
-    //       ],
-    //     )
-    //   ]),
-    // );
-  }
+  // buildOTPRow(BuildContext context) {
+  //   return PinFieldAutoFill(
+  //     controller: codeController,
+  //     decoration: UnderlineDecoration(
+  //       textStyle: TextStyle(fontSize: 20, color: Colors.black),
+  //       colorBuilder: FixedColorBuilder(Colors.black.withOpacity(0.3)),
+  //     ),
+  //     currentCode: _code,
+  //     onCodeSubmitted: (code) {
+  //       codeController.text = code;
+  //     },
+  //     onCodeChanged: (code) {
+  //       if (code.length == 6) {
+  //         FocusScope.of(context).requestFocus(FocusNode());
+  //       }
+  //     },
+  //   );
+  // Container(
+  //   child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+  //     Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         OTPDigitTextFieldBox(first: true, last: false),
+  //         OTPDigitTextFieldBox(first: false, last: false),
+  //         OTPDigitTextFieldBox(first: false, last: false),
+  //         OTPDigitTextFieldBox(first: false, last: false),
+  //         OTPDigitTextFieldBox(first: false, last: false),
+  //         OTPDigitTextFieldBox(first: false, last: true),
+  //       ],
+  //     )
+  //   ]),
+  // );
+  //}
 }
