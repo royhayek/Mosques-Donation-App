@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/category.dart';
-import 'package:mosques_donation_app/screens/categories/widgets/category_list_item.dart';
 import 'package:mosques_donation_app/screens/products_list/products_list_screen.dart';
+import 'package:mosques_donation_app/screens/subcategories/widgets/subcategory_list_item.dart';
 
 import '../../size_config.dart';
 
@@ -41,7 +41,7 @@ class SubCategoriesScreen extends StatelessWidget {
         vertical: SizeConfig.blockSizeVertical * 1,
         horizontal: SizeConfig.blockSizeHorizontal * 4,
       ),
-      itemBuilder: (ctx, i) => CategoryListItem(
+      itemBuilder: (ctx, i) => SubcategoryListItem(
         subcategory: category.subcategories[i],
         categoryId: category.id,
       ),

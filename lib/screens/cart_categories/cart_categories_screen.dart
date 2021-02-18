@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/cart.dart';
+import 'package:mosques_donation_app/providers/auth_provider.dart';
 import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/screens/cart_categories/widgets/cart_category_list_item.dart';
 import 'package:mosques_donation_app/size_config.dart';
@@ -15,7 +15,7 @@ class CartCategoriesScreen extends StatefulWidget {
 }
 
 class _CartCategoriesScreenState extends State<CartCategoriesScreen> {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  AuthProvider authProvider;
   CartProvider cartProvider;
   List<Cart> cart;
   bool _isRetrieving = true;
@@ -23,12 +23,13 @@ class _CartCategoriesScreenState extends State<CartCategoriesScreen> {
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     cartProvider = Provider.of<CartProvider>(context, listen: false);
     getCart();
   }
 
   getCart() async {
-    await cartProvider.getUserCart(_auth.currentUser.uid).then((c) {
+    await cartProvider.getUserCart(authProvider.user.id).then((c) {
       setState(() {
         if (mounted) cart = c;
       });

@@ -168,8 +168,22 @@
   "please_write_something": "Please write something before submitting!",
   "read_more": "read more",
   "mosque": "Mosque Name",
+  "mosque_address": "Mosque Address",
   "product_out_of_stock": "This product is out of stock",
   "out_of_stock": "out of stock",
   "payment_method": "Payment Method",
-  "select_your_payment_method": "Select your payment method"
+  "select_your_payment_method": "Select your payment method",
+  "total_donated_amount": "Total Donated Amount",
+  "the_payment_was_successful": "The payment was successful \n Thank you for donating!",
+  "return_home": "Return Home",
+  "privacy_policy": "Privacy Policy",
+  "terms_and_conditions": "Terms & Conditions",
+  "please_enter_your_login_information": "Please enter your login information",
+  "please_enter_your_information_to_signup": "Please enter your information to sign up",
+  "already_have_an_account": "Already have an account?",
+  "order_placed_successfully": "Order placed successfully!",
+  "password": "Password",
+  "share_app": "Share the App",
+  "missing_products_notes_in_the_mosque": "Please describe the missing products in the mosque",
+  "notes": "Notes"
 }

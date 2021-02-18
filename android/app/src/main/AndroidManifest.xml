@@ -13,6 +13,7 @@
     <application
         android:name=".Application" 
         android:label="mosques_donation_app"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

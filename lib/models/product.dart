@@ -6,6 +6,7 @@ class Product {
   final String name;
   final String image;
   final String description;
+  final num buyingPrice;
   final num price;
   final num productPrice;
   final num salePrice;
@@ -27,6 +28,7 @@ class Product {
     this.name,
     this.image,
     this.description,
+    this.buyingPrice,
     this.price,
     this.productPrice,
     this.salePrice,
@@ -50,6 +52,7 @@ class Product {
       name: json['name'],
       image: json['image'],
       description: json['description'],
+      buyingPrice: json['buyingPrice'],
       price: json['price'],
       productPrice: json['productPrice'] != null ? json['productPrice'] : 0.0,
       salePrice: json['salePrice'] != null ? json['salePrice'] : 0.0,

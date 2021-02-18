@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:mosques_donation_app/screens/otp/otp_screen.dart';
 
 import '../size_config.dart';
 
 class AccountText extends StatelessWidget {
   final String question, action;
+  final Function onPressed;
 
   AccountText({
     Key key,
     this.question,
     this.action,
+    this.onPressed,
   }) : super(key: key);
 
   @override
@@ -24,9 +25,7 @@ class AccountText extends StatelessWidget {
           ),
         ),
         GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, OTPScreen.routeName);
-          },
+          onTap: onPressed,
           child: Text(
             action,
             style: TextStyle(

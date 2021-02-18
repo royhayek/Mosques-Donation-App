@@ -8,6 +8,7 @@ import 'package:mosques_donation_app/screens/donation_history/donation_history_s
 import 'package:mosques_donation_app/screens/languages/languages_screen.dart';
 import 'package:mosques_donation_app/screens/products_list/products_list_screen.dart';
 import 'package:mosques_donation_app/screens/search/search_screen.dart';
+import 'package:mosques_donation_app/screens/signin/signin_screen.dart';
 import 'package:mosques_donation_app/screens/signup/signup_screen.dart';
 
 import 'package:mosques_donation_app/screens/splash_screen.dart';
@@ -33,6 +34,7 @@ final Map<String, WidgetBuilder> routes = {
   SuggestionReportScreen.routeName: (context) => SuggestionReportScreen(),
   CheckoutScreen.routeName: (context) => CheckoutScreen(),
   Checkout2Screen.routeName: (context) => Checkout2Screen(),
+  SignInScreen.routeName: (context) => SignInScreen(),
   SignUpScreen.routeName: (context) => SignUpScreen(),
   TopTenProductsListScreen.routeName: (context) => TopTenProductsListScreen(),
   SearchScreen.routeName: (context) => SearchScreen(),

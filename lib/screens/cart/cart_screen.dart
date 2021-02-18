@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/cart.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
+import 'package:mosques_donation_app/providers/auth_provider.dart';
 import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/screens/cart/widgets/cart_list_item.dart';
 import 'package:mosques_donation_app/screens/checkout%202/checkout_2_screen.dart';
@@ -24,7 +24,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  AuthProvider authProvider;
   AppProvider appProvider;
   CartProvider cartProvider;
   Cart cart;
@@ -34,6 +34,7 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     appProvider = Provider.of<AppProvider>(context, listen: false);
     cartProvider = Provider.of<CartProvider>(context, listen: false);
 
@@ -51,8 +52,8 @@ class _CartScreenState extends State<CartScreen> {
     setState(() {
       cart.products.removeWhere((p) => p.cartId == cartId);
     });
-    await cartProvider.getUserCart(_auth.currentUser.uid);
-    await cartProvider.getUserCartCount(_auth.currentUser.uid);
+    await cartProvider.getUserCart(authProvider.user.id);
+    await cartProvider.getUserCartCount(authProvider.user.id);
     getCartByCategory();
   }
 
@@ -62,8 +63,8 @@ class _CartScreenState extends State<CartScreen> {
     });
     await HttpService.updateCartProduct(cartId, quantity, price)
         .then((value) async {
-      await cartProvider.getUserCart(_auth.currentUser.uid);
-      await cartProvider.getUserCartCount(_auth.currentUser.uid);
+      await cartProvider.getUserCart(authProvider.user.id);
+      await cartProvider.getUserCartCount(authProvider.user.id);
     });
     getCartByCategory();
     setState(() {

@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/models/cart.dart';
+import 'package:mosques_donation_app/models/order.dart';
 import 'package:mosques_donation_app/models/payment_methods.dart';
+import 'package:mosques_donation_app/providers/auth_provider.dart';
+import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/screens/paid/paid_screen.dart';
+import 'package:mosques_donation_app/services/http_service.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/custom_card_button.dart';
 import 'package:myfatoorah_flutter/myfatoorah_flutter.dart';
+import 'package:provider/provider.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Cart cart;
+  final Order order;
 
-  const PaymentScreen({Key key, this.cart}) : super(key: key);
+  const PaymentScreen({Key key, this.cart, this.order}) : super(key: key);
 
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
@@ -20,11 +26,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String response = '';
   String _loading = "Loading...";
   bool _isRetrieving = true;
+  CartProvider cartProvider;
+  AuthProvider authProvider;
   MyFatoorahPaymentMethods paymentMethods;
 
   @override
   void initState() {
     super.initState();
+
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
+    cartProvider = Provider.of<CartProvider>(context, listen: false);
 
     MFSDK.init(
       'https://apitest.myfatoorah.com',
@@ -123,40 +134,38 @@ class _PaymentScreenState extends State<PaymentScreen> {
       amount.toString(),
     );
 
-    MFSDK.executePayment(
-        context,
-        request,
-        MFAPILanguage.EN,
-        (String invoiceId, MFResult<MFPaymentStatusResponse> result) => {
-              if (result.isSuccess())
-                {
-                  setState(() {
-                    print(invoiceId);
-                    // print(result.response.toJson());
-                    // response = result.response.toJson().toString();
-                    // getPaymentStatus(invoiceId);
-                    Map<String, dynamic> response = result.response.toJson();
-                    // print(response);
-                    print('InvoiceStatus: ${response["InvoiceStatus"]}');
-                    if (response["InvoiceStatus"] == "Paid") {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaidScreen(),
-                        ),
-                      );
-                    }
-                  })
-                }
-              else
-                {
-                  setState(() {
-                    print(invoiceId);
-                    print(result.error.toJson());
-                    response = result.error.message;
-                  })
-                }
-            });
+    MFSDK.executePayment(context, request, MFAPILanguage.EN,
+        (String invoiceId, MFResult<MFPaymentStatusResponse> result) async {
+      if (result.isSuccess()) {
+        setState(() {
+          print(invoiceId);
+          // print(result.response.toJson());
+          // response = result.response.toJson().toString();
+          // getPaymentStatus(invoiceId);
+        });
+        Map<String, dynamic> response = result.response.toJson();
+        // print(response);
+        print('InvoiceStatus: ${response["InvoiceStatus"]}');
+        if (response["InvoiceStatus"] == "Paid") {
+          widget.order.paymentStatus = 3;
+          await HttpService.makeOrder(context, widget.order);
+          cartProvider.getUserCart(authProvider.user.id);
+          cartProvider.getUserCartCount(authProvider.user.id);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PaidScreen(),
+            ),
+          );
+        }
+      } else {
+        setState(() {
+          print(invoiceId);
+          print(result.error.toJson());
+          response = result.error.message;
+        });
+      }
+    });
 
     setState(() {
       response = _loading;

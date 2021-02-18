@@ -2,6 +2,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:mosques_donation_app/screens/tab_screens.dart';
 import 'package:mosques_donation_app/size_config.dart';
+import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/custom_card_button.dart';
 
 class PaidScreen extends StatelessWidget {
@@ -22,7 +23,7 @@ class PaidScreen extends StatelessWidget {
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 5),
             Text(
-              'The payment was successful \n Thank you for donating!',
+              trans(context, 'the_payment_was_successful'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: SizeConfig.safeBlockHorizontal * 5,
@@ -35,7 +36,7 @@ class PaidScreen extends StatelessWidget {
                 horizontal: SizeConfig.blockSizeHorizontal * 6,
               ),
               child: CustomCardButton(
-                text: 'Return Home',
+                text: trans(context, 'return_home'),
                 onPressed: () => Navigator.pushNamedAndRemoveUntil(
                     context, TabsScreen.routeName, (route) => false),
               ),

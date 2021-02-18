@@ -6,6 +6,10 @@ class Category {
   final String image;
   final int status;
   final int templateId;
+  final int hasSubcategories;
+  final int showProductsList;
+  final int showCustomField;
+  final int showCustomField2;
   final String createdAt;
   final String updatedAt;
   final List<Subcategory> subcategories;
@@ -19,6 +23,10 @@ class Category {
     this.createdAt,
     this.updatedAt,
     this.subcategories,
+    this.hasSubcategories,
+    this.showProductsList,
+    this.showCustomField,
+    this.showCustomField2,
   });
 
   factory Category.fromJson(Map<String, dynamic> json) {
@@ -30,6 +38,10 @@ class Category {
       templateId: json['templateId'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
+      showCustomField: json['showCustomField'],
+      showCustomField2: json['showCustomField2'],
+      showProductsList: json['showProductsList'],
+      hasSubcategories: json['hasSubcategories'],
       subcategories: json['subcategories'] != null
           ? List<Subcategory>.from(
               json["subcategories"].map((x) => Subcategory.fromJson(x)))

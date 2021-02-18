@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:mosques_donation_app/providers/app_provider.dart';
+import 'package:mosques_donation_app/providers/auth_provider.dart';
 import 'package:mosques_donation_app/providers/cart_provider.dart';
 import 'package:mosques_donation_app/routes.dart';
 import 'package:mosques_donation_app/screens/splash_screen.dart';
@@ -17,12 +19,9 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => AppProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => CartProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AppProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MyApp(),
     ),
@@ -50,9 +49,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle.dark,
-    );
+    FlutterStatusbarcolor.setStatusBarColor(Colors.white);
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

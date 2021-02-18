@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mosques_donation_app/models/user.dart';
+import 'package:mosques_donation_app/providers/auth_provider.dart';
+import 'package:mosques_donation_app/screens/signup/signup_screen.dart';
 import 'package:mosques_donation_app/widgets/custom_text_field.dart';
-import 'package:mosques_donation_app/services/http_service.dart';
+import 'package:mosques_donation_app/screens/tab_screens.dart';
 import 'package:mosques_donation_app/size_config.dart';
 import 'package:mosques_donation_app/utils/utils.dart';
 import 'package:mosques_donation_app/widgets/default_button.dart';
+import 'package:provider/provider.dart';
 
-class SignUpScreen extends StatefulWidget {
-  static String routeName = "/sign_up_screen";
+class SignInScreen extends StatefulWidget {
+  static String routeName = "/sign_in_screen";
 
   @override
-  _SignUpScreenState createState() => _SignUpScreenState();
+  _SignInScreenState createState() => _SignInScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen>
+class _SignInScreenState extends State<SignInScreen>
     with TickerProviderStateMixin {
-  TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  AuthProvider authProvider;
 
-  _signUp(BuildContext context) async {
-    if (_nameController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
+  _signIn(BuildContext context) async {
+    FocusScope.of(context).requestFocus(new FocusNode());
+    if (_phoneController.text.isEmpty && _passwordController.text.isEmpty) {
       Fluttertoast.showToast(
           msg: trans(context, 'please_fill_all_information'));
       return;
@@ -33,17 +36,20 @@ class _SignUpScreenState extends State<SignUpScreen>
         _isLoading = true;
       });
 
-      await HttpService.registerUser(
-        context,
-        _nameController.text,
-        _phoneController.text,
-        _passwordController.text,
-      ).then((user) => user != null ? Navigator.pop(context) : null);
+      authProvider = Provider.of<AuthProvider>(context, listen: false);
+      String _phone = _phoneController.value.text;
+      String _password = _passwordController.value.text;
 
+      User user = await authProvider.loginUser(context, _phone, _password);
       setState(() {
         _isLoading = false;
       });
+      if (user != null) Navigator.pushNamed(context, TabsScreen.routeName);
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -69,7 +75,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Text(
-                    trans(context, 'sign_up'),
+                    trans(context, 'sign_in'),
                     style: TextStyle(
                       fontSize: SizeConfig.safeBlockHorizontal * 8,
                       fontWeight: FontWeight.bold,
@@ -77,7 +83,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                   ),
                   SizedBox(height: SizeConfig.blockSizeVertical * 3),
                   Text(
-                    trans(context, 'please_enter_your_information_to_signup'),
+                    trans(context, 'please_enter_your_login_information'),
                     style: TextStyle(
                       color: Colors.black54,
                       fontSize: SizeConfig.safeBlockHorizontal * 4.5,
@@ -101,12 +107,6 @@ class _SignUpScreenState extends State<SignUpScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         PhoneTextField(
-                          hint: trans(context, 'name'),
-                          controller: _nameController,
-                          obscure: false,
-                        ),
-                        SizedBox(height: SizeConfig.blockSizeVertical * 4),
-                        PhoneTextField(
                           hint: trans(context, 'phone'),
                           controller: _phoneController,
                           obscure: false,
@@ -124,7 +124,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                         SizedBox(height: SizeConfig.blockSizeVertical * 4),
                       ],
                     ),
-                    SizedBox(height: SizeConfig.blockSizeVertical * 2),
+                    SizedBox(height: SizeConfig.blockSizeVertical * 6),
                     Padding(
                       padding: EdgeInsets.symmetric(
                           horizontal: SizeConfig.blockSizeHorizontal * 2),
@@ -141,8 +141,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                                     ),
                                   )
                                 : DefaultButton(
-                                    text: trans(context, 'sign_up'),
-                                    press: () => _signUp(context),
+                                    text: trans(context, 'sign_in'),
+                                    press: () => _signIn(context),
                                   ),
                           ),
                           SizedBox(height: SizeConfig.blockSizeVertical * 4),
@@ -150,12 +150,13 @@ class _SignUpScreenState extends State<SignUpScreen>
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(trans(context, 'already_have_an_account')),
+                              Text(trans(context, 'don\'t_have_an_account?')),
                               SizedBox(width: SizeConfig.blockSizeHorizontal),
                               InkWell(
-                                onTap: () => Navigator.pop(context),
+                                onTap: () => Navigator.pushNamed(
+                                    context, SignUpScreen.routeName),
                                 child: Text(
-                                  trans(context, 'sign_in_now'),
+                                  trans(context, 'sign_up_now'),
                                   style: TextStyle(
                                     color: Theme.of(context).primaryColor,
                                   ),
